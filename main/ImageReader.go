@@ -6,11 +6,10 @@ import (
 	"image/jpeg"
 	"os"
 	"io"
+	"image/color"
 )
 
-func main() {
-	path := "./test_images/"
-	folderNumber := "1"
+func getPixelsFromImageFile(path string, folderNumber string) [][]Pixel {
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 
 	file, err := os.Open(path + folderNumber + "/Test image.jpg")
@@ -29,10 +28,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(pixels)
+	return pixels
 }
 
-func getPixels(file io.Reader) ([][]Pixel, error) {
+func createNewImageFromPixels(pixels [][]Pixel) {
+	file, err := os.Create("image.jpg")
+
+	defer file.Close()
+
+	if err != nil {
+		fmt.Print("Failed to create file, with error message", err)
+		os.Exit(1)
+	}
+
+	height, width := len(pixels), len(pixels[0])
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			R, G, B, A := pixels[y][x].R, pixels[y][x].G, pixels[y][x].B, pixels[y][x].A
+			img.Set(x, y, color.RGBA{R, G, B, A})
+		}
+	}
+
+	jpeg.Encode(file, img, nil)
+
+}
+
+func getPixels(file io.Reader) ([][]Pixel, error,) {
 	img, _, err := image.Decode(file)
 
 	if err != nil {
@@ -55,12 +80,12 @@ func getPixels(file io.Reader) ([][]Pixel, error) {
 }
 
 func rgbaToPixel(r uint32, g uint32, b uint32, a uint32) Pixel {
-	return Pixel{int(r >> 8), int(g >> 8), int(b >> 8), int(a >> 8)}
+	return Pixel{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
 type Pixel struct {
-	R int
-	G int
-	B int
-	A int
+	R uint8
+	G uint8
+	B uint8
+	A uint8
 }
