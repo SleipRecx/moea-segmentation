@@ -8,5 +8,5 @@ func main() {
 
 	pixels := getPixelsFromImageFile(path, folderNumber)
 	createNewImageFromPixels(pixels)
-	fmt.Print("\n", calcOverallDeviation(pixels))
+	fmt.Print("\n Total deviation: ", calcOverallDeviation(pixels))
 }
