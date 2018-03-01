@@ -2,16 +2,14 @@ package main
 
 import "fmt"
 
+var _ = fmt.Println
+
 func main() {
 	path := "./test_images/"
 	folderNumber := "1"
+	myImage := readImageFromFile(path, folderNumber)
+	graph := imageToGraph(myImage)
+	graph.minimalSpanningTree()
 
-	pixels := getPixelsFromImageFile(path, folderNumber)
-	for i := range pixels {
-		for j := range pixels[i] {
-			fmt.Println(pixels[i][j])
-		}
-	}
 
-	// createNewImageFromPixels(pixels)
 }
