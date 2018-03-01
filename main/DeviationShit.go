@@ -17,7 +17,7 @@ func calcSegmentDeviation(segment []Pixel) float64 {
 	centroid := calcCentroid(segment)
 
 	for _, pixel := range segment {
-		deviation += calcEuclideanDistance(pixel, centroid)
+		deviation += colorDistance(pixel, centroid)
 	}
 	return deviation
 }

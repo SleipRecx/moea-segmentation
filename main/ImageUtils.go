@@ -3,37 +3,33 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/jpeg"
-	"os"
-	"io"
 	"image/color"
+	"image/jpeg"
+	"io"
+	"os"
 )
 
 func getPixelsFromImageFile(path string, folderNumber string) [][]Pixel {
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 
 	file, err := os.Open(path + folderNumber + "/Test image.jpg")
-
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	defer file.Close()
-
 	pixels, err := getPixels(file)
 
 	if err != nil {
 		fmt.Println("Error: Image could not be decoded")
 		os.Exit(1)
 	}
-
 	return pixels
 }
 
 func createNewImageFromPixels(pixels [][]Pixel) {
 	file, err := os.Create("image.jpg")
-
 	defer file.Close()
 
 	if err != nil {
@@ -42,9 +38,7 @@ func createNewImageFromPixels(pixels [][]Pixel) {
 	}
 
 	height, width := len(pixels), len(pixels[0])
-
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
-
 
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
@@ -52,12 +46,11 @@ func createNewImageFromPixels(pixels [][]Pixel) {
 			img.Set(x, y, color.RGBA{R, G, B, A})
 		}
 	}
-
 	jpeg.Encode(file, img, nil)
 
 }
 
-func getPixels(file io.Reader) ([][]Pixel, error,) {
+func getPixels(file io.Reader) ([][]Pixel, error) {
 	img, _, err := image.Decode(file)
 
 	if err != nil {
@@ -66,7 +59,6 @@ func getPixels(file io.Reader) ([][]Pixel, error,) {
 
 	bounds := img.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
-
 	var pixels [][]Pixel
 
 	for y := 0; y < height; y++ {

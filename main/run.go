@@ -7,6 +7,11 @@ func main() {
 	folderNumber := "1"
 
 	pixels := getPixelsFromImageFile(path, folderNumber)
-	createNewImageFromPixels(pixels)
-	fmt.Print("\n Total deviation: ", calcOverallDeviation(pixels))
+	for i := range pixels {
+		for j := range pixels[i] {
+			fmt.Println(pixels[i][j])
+		}
+	}
+
+	// createNewImageFromPixels(pixels)
 }
