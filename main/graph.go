@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"fmt"
 	"sort"
@@ -12,71 +11,37 @@ type Node struct {
 }
 
 type Edge struct {
-	From     Node
-	To       Node
-	Weight   float64
-	Directed bool
+	U      interface{}
+	V      interface{}
+	Weight float64
+}
+
+func (e Edge) String() string {
+	return fmt.Sprintf("%v <--> %v, Weight: %f", e.U, e.V, e.Weight)
 }
 
 type Graph struct {
 	Edges    []Edge
-	Vertices []Node
-}
-
-func (e Edge) String() string {
-	return fmt.Sprintf("From: %d, To: %d, Weight: %f, Directed: %t", e.From, e.To, e.Weight, e.Directed)
-}
-
-func imageToGraph(myImage Image) Graph {
-	var edges []Edge
-	var verticies []Node
-	pixels := myImage.pixels
-	for i := range pixels {
-		for j := range pixels[i] {
-			verticies = append(verticies, Node{X: i, Y: j})
-			from := pixels[i][j]
-			if j+1 < len(pixels[i]) {
-				to := pixels[i][j+1]
-				edge := Edge{
-					From: Node{X: i, Y: j},
-					To: Node{X: i, Y: j + 1},
-					Weight: from.distance(to),
-					Directed: false}
-				edges = append(edges, edge)
-			}
-			if i+1 < len(pixels) {
-				to := pixels[i+1][j]
-				edge := Edge{
-					From: Node{X: i, Y: j},
-					To: Node{X: i + 1, Y: j},
-					Weight: from.distance(to),
-					Directed: false}
-				edges = append(edges, edge)
-			}
-		}
-	}
-	return Graph{Edges: edges, Vertices: verticies}
+	Vertices []interface{}
 }
 
 func (g Graph) minimalSpanningTree() []Edge {
-
-	var edges = g.Edges[:]
-	sort.Slice(edges, func(i, j int) bool {
-		return edges[i].Weight < edges[j].Weight
+	var tree []Edge
+	sort.Slice(g.Edges, func(i, j int) bool {
+		return g.Edges[i].Weight < g.Edges[j].Weight
 	})
 
-	F := map[Node]bool{}
-
-	for _, node := range g.Vertices {
-		F[node] = true
+	var myMap = make(map[interface{}]*Element)
+	for _, vertex := range g.Vertices {
+		element := makeSet(vertex)
+		myMap[vertex] = element
 	}
 
-
-	/*
-	for _, edge := range edges {
-		fmt.Println(edge)
+	for _, edge := range g.Edges {
+		if findSet(myMap[edge.U]) != findSet(myMap[edge.V]) {
+			union(myMap[edge.U], myMap[edge.V])
+			tree = append(tree, edge)
+		}
 	}
-	*/
-
-	return []Edge{}
+	return tree
 }

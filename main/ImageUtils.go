@@ -89,3 +89,26 @@ func saveImageToFile(myImage Image) {
 
 	jpeg.Encode(file, img, nil)
 }
+
+func imageToGraph(myImage Image) Graph {
+	var edges []Edge
+	var verticies []interface{}
+	pixels := myImage.pixels
+	for i := range pixels {
+		for j := range pixels[i] {
+			verticies = append(verticies, Node{X: i, Y: j})
+			from := pixels[i][j]
+			if j+1 < len(pixels[i]) {
+				to := pixels[i][j+1]
+				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i, Y: j + 1}, Weight: from.distance(to)}
+				edges = append(edges, edge)
+			}
+			if i+1 < len(pixels) {
+				to := pixels[i+1][j]
+				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i + 1, Y: j}, Weight: from.distance(to)}
+				edges = append(edges, edge)
+			}
+		}
+	}
+	return Graph{Edges: edges, Vertices: verticies}
+}
