@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-// TODO: Make this dummy test actually test something useful.
-
 func TestMinimalSpanningTree(t *testing.T) {
 	vertices := []graph.Vertex{0, 1, 2, 3, 4, 5, 6, 7, 8}
 	edges := []graph.Edge{
@@ -25,10 +23,12 @@ func TestMinimalSpanningTree(t *testing.T) {
 		{U: 1, V: 7, Weight: 11},
 		{U: 3, V: 5, Weight: 14}}
 
-	graph := graph.Graph{Vertices: vertices, Edges: edges}
-	mst := graph.MinimalSpanningTree()
+	g := graph.Graph{Vertices: vertices, Edges: edges}
+	mst := g.MinimalSpanningTree()
 
-	if len(mst.Edges) != 8 {
-		t.Errorf("Incorrect number of edges in spanning tree")
+	expected := 37.0
+	actual := mst.CalculateTotalCost()
+	if expected != actual {
+		t.Errorf("Expected: %f Was: %f", expected, actual)
 	}
 }
