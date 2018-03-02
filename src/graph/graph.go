@@ -5,11 +5,6 @@ import (
 	"sort"
 )
 
-type Node struct {
-	X int
-	Y int
-}
-
 type Edge struct {
 	U      interface{}
 	V      interface{}

@@ -1,8 +1,8 @@
 package deviation
 
 import (
-	"fmt"
 	"../image"
+	"fmt"
 )
 
 type Pixel = image.Pixel

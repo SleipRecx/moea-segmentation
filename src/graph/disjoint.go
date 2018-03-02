@@ -26,7 +26,6 @@ func Union(e1, e2 *Element) {
 	root1 := FindSet(e1)
 	root2 := FindSet(e2)
 
-
 	if root1 == root2 {
 		return
 	}

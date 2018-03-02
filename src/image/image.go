@@ -13,7 +13,11 @@ import (
 
 type Graph = graph.Graph
 type Edge = graph.Edge
-type Node = graph.Node
+
+type Node struct {
+	X int
+	Y int
+}
 
 type Pixel struct {
 	R uint8
