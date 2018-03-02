@@ -5,9 +5,11 @@ import (
 	"sort"
 )
 
+type Node = interface{}
+
 type Edge struct {
-	U      interface{}
-	V      interface{}
+	U      Node
+	V      Node
 	Weight float64
 }
 
@@ -17,7 +19,7 @@ func (e Edge) String() string {
 
 type Graph struct {
 	Edges    []Edge
-	Vertices []interface{}
+	Vertices []Node
 }
 
 func (g Graph) MinimalSpanningTree() []Edge {
@@ -26,7 +28,7 @@ func (g Graph) MinimalSpanningTree() []Edge {
 		return g.Edges[i].Weight < g.Edges[j].Weight
 	})
 
-	var myMap = make(map[interface{}]*Element)
+	var myMap = make(map[Node]*Element)
 	for _, vertex := range g.Vertices {
 		element := MakeSet(vertex)
 		myMap[vertex] = element
@@ -39,4 +41,11 @@ func (g Graph) MinimalSpanningTree() []Edge {
 		}
 	}
 	return tree
+}
+
+func (g Graph) makeForest() []Graph {
+	for _, edge := range g.Edges {
+		fmt.Println(edge)
+	}
+	return []Graph{}
 }

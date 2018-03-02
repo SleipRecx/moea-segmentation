@@ -11,10 +11,11 @@ import (
 	"os"
 )
 
-type Graph = graph.Graph
+type Node = graph.Node
 type Edge = graph.Edge
+type Graph = graph.Graph
 
-type Node struct {
+type Coordinate struct {
 	X int
 	Y int
 }
@@ -115,20 +116,20 @@ func SaveImageToFile(myImage Image) {
 
 func ImageToGraph(myImage Image) Graph {
 	var edges []Edge
-	var verticies []interface{}
+	var verticies []Node
 	pixels := myImage.pixels
 	for i := range pixels {
 		for j := range pixels[i] {
-			verticies = append(verticies, Node{X: i, Y: j})
-			from := pixels[i][j]
+			fromCord := Coordinate{X: i, Y: j}
+			verticies = append(verticies, fromCord)
 			if j+1 < len(pixels[i]) {
-				to := pixels[i][j+1]
-				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i, Y: j + 1}, Weight: from.Distance(to)}
+				toCord := Coordinate{X: i, Y: j + 1}
+				edge := Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
 				edges = append(edges, edge)
 			}
 			if i+1 < len(pixels) {
-				to := pixels[i+1][j]
-				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i + 1, Y: j}, Weight: from.Distance(to)}
+				toCord := Coordinate{X: i + 1, Y: j}
+				edge := Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
 				edges = append(edges, edge)
 			}
 		}
