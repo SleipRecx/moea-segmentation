@@ -1,13 +1,19 @@
-package main
+package image
 
 import (
+	"../graph"
 	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
 	"io"
+	"math"
 	"os"
 )
+
+type Graph = graph.Graph
+type Edge = graph.Edge
+type Node = graph.Node
 
 type Pixel struct {
 	R uint8
@@ -16,11 +22,24 @@ type Pixel struct {
 	A uint8
 }
 
+func ColorDistance(p1 Pixel, p2 Pixel) float64 {
+	r := math.Pow(float64(p1.R-p2.R), 2)
+	g := math.Pow(float64(p1.G-p2.G), 2)
+	b := math.Pow(float64(p1.B-p2.B), 2)
+	a := math.Pow(float64(p1.A-p2.A), 2)
+
+	return math.Sqrt(r + g + b + a)
+}
+
+func (pixel Pixel) Distance(pixel2 Pixel) float64 {
+	return ColorDistance(pixel, pixel2)
+}
+
 type Image struct {
 	pixels [][]Pixel
 }
 
-func readImageFromFile(path string, folderNumber string) Image {
+func ReadImageFromFile(path string, folderNumber string) Image {
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 
 	file, err := os.Open(path + folderNumber + "/Test image.jpg")
@@ -30,7 +49,7 @@ func readImageFromFile(path string, folderNumber string) Image {
 	}
 
 	defer file.Close()
-	myImage, err := parseImageFile(file)
+	myImage, err := ParseImageFile(file)
 
 	if err != nil {
 		fmt.Println("Error: Image could not be decoded")
@@ -39,7 +58,7 @@ func readImageFromFile(path string, folderNumber string) Image {
 	return myImage
 }
 
-func parseImageFile(file io.Reader) (Image, error) {
+func ParseImageFile(file io.Reader) (Image, error) {
 	var myImage Image
 
 	img, _, err := image.Decode(file)
@@ -65,7 +84,7 @@ func rgbaToPixel(r uint32, g uint32, b uint32, a uint32) Pixel {
 	return Pixel{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
-func saveImageToFile(myImage Image) {
+func SaveImageToFile(myImage Image) {
 	file, err := os.Create("image.jpg")
 	defer file.Close()
 
@@ -90,7 +109,7 @@ func saveImageToFile(myImage Image) {
 	jpeg.Encode(file, img, nil)
 }
 
-func imageToGraph(myImage Image) Graph {
+func ImageToGraph(myImage Image) Graph {
 	var edges []Edge
 	var verticies []interface{}
 	pixels := myImage.pixels
@@ -100,12 +119,12 @@ func imageToGraph(myImage Image) Graph {
 			from := pixels[i][j]
 			if j+1 < len(pixels[i]) {
 				to := pixels[i][j+1]
-				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i, Y: j + 1}, Weight: from.distance(to)}
+				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i, Y: j + 1}, Weight: from.Distance(to)}
 				edges = append(edges, edge)
 			}
 			if i+1 < len(pixels) {
 				to := pixels[i+1][j]
-				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i + 1, Y: j}, Weight: from.distance(to)}
+				edge := Edge{U: Node{X: i, Y: j}, V: Node{X: i + 1, Y: j}, Weight: from.Distance(to)}
 				edges = append(edges, edge)
 			}
 		}

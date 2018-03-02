@@ -1,6 +1,11 @@
-package main
+package deviation
 
-import "fmt"
+import (
+	"fmt"
+	"../image"
+)
+
+type Pixel = image.Pixel
 
 func calcOverallDeviation(segmentSet [][]Pixel) float64 {
 	var deviation float64
@@ -17,7 +22,7 @@ func calcSegmentDeviation(segment []Pixel) float64 {
 	centroid := calcCentroid(segment)
 
 	for _, pixel := range segment {
-		deviation += colorDistance(pixel, centroid)
+		deviation += pixel.Distance(centroid)
 	}
 	return deviation
 }
@@ -30,13 +35,15 @@ func calcCentroid(segment []Pixel) Pixel {
 		b += int(pixel.B)
 	}
 	numPixels := len(segment)
-	centroid := Pixel{uint8(r / numPixels),
-		uint8(g / numPixels),
-		uint8(b / numPixels),
-		segment[0].A}
-	fmt.Print("\nSegment centroid:", " R:", centroid.R, " G:", centroid.G, " B:", centroid.B)
-	return Pixel{centroid.R,
-		centroid.G,
-		centroid.B,
-		segment[0].A}
+	centroid := Pixel{
+		R: uint8(r / numPixels),
+		G: uint8(g / numPixels),
+		B: uint8(b / numPixels),
+		A: segment[0].A}
+
+	return Pixel{
+		R: centroid.R,
+		G: centroid.G,
+		B: centroid.B,
+		A: segment[0].A}
 }

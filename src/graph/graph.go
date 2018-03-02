@@ -1,4 +1,4 @@
-package main
+package graph
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ type Graph struct {
 	Vertices []interface{}
 }
 
-func (g Graph) minimalSpanningTree() []Edge {
+func (g Graph) MinimalSpanningTree() []Edge {
 	var tree []Edge
 	sort.Slice(g.Edges, func(i, j int) bool {
 		return g.Edges[i].Weight < g.Edges[j].Weight
@@ -33,13 +33,13 @@ func (g Graph) minimalSpanningTree() []Edge {
 
 	var myMap = make(map[interface{}]*Element)
 	for _, vertex := range g.Vertices {
-		element := makeSet(vertex)
+		element := MakeSet(vertex)
 		myMap[vertex] = element
 	}
 
 	for _, edge := range g.Edges {
-		if findSet(myMap[edge.U]) != findSet(myMap[edge.V]) {
-			union(myMap[edge.U], myMap[edge.V])
+		if FindSet(myMap[edge.U]) != FindSet(myMap[edge.V]) {
+			Union(myMap[edge.U], myMap[edge.V])
 			tree = append(tree, edge)
 		}
 	}
