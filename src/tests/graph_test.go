@@ -1,14 +1,15 @@
-package graph
+package tests
 
 import (
+	"../graph"
 	"testing"
 )
 
 // TODO: Make this dummy test actually test something useful.
 
 func TestMinimalSpanningTree(t *testing.T) {
-	vertices := []Node{0, 1, 2, 3, 4, 5, 6, 7, 8}
-	edges := []Edge{
+	vertices := []graph.Vertex{0, 1, 2, 3, 4, 5, 6, 7, 8}
+	edges := []graph.Edge{
 		{U: 7, V: 6, Weight: 1},
 		{U: 8, V: 2, Weight: 2},
 		{U: 6, V: 5, Weight: 2},
@@ -24,10 +25,10 @@ func TestMinimalSpanningTree(t *testing.T) {
 		{U: 1, V: 7, Weight: 11},
 		{U: 3, V: 5, Weight: 14}}
 
-	graph := Graph{Vertices: vertices, Edges: edges}
+	graph := graph.Graph{Vertices: vertices, Edges: edges}
 	mst := graph.MinimalSpanningTree()
 
-	if len(mst) != 8 {
+	if len(mst.Edges) != 8 {
 		t.Errorf("Incorrect number of edges in spanning tree")
 	}
 }

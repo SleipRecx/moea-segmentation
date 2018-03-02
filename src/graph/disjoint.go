@@ -23,20 +23,20 @@ func FindSet(e *Element) *Element {
 }
 
 func Union(e1, e2 *Element) {
-	root1 := FindSet(e1)
-	root2 := FindSet(e2)
+	r1 := FindSet(e1)
+	r2 := FindSet(e2)
 
-	if root1 == root2 {
+	if r1 == r2 {
 		return
 	}
 
-	if root1.Rank > root2.Rank {
-		root2.Parent = root1
-	} else if root1.Rank < root2.Rank {
-		root1.Parent = root2
+	if r1.Rank > r2.Rank {
+		r2.Parent = r1
+	} else if r1.Rank < r2.Rank {
+		r1.Parent = r2
 	} else {
-		root1.Parent = root2
-		root2.Rank = root2.Rank + 1
+		r1.Parent = r2
+		r2.Rank = r2.Rank + 1
 	}
 
 }

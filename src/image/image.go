@@ -33,7 +33,7 @@ func (pixel Pixel) Distance(pixel2 Pixel) float64 {
 }
 
 type Image struct {
-	pixels [][]Pixel
+	Pixels [][]Pixel
 }
 
 func ReadImageFromFile(path string, folderNumber string) Image {
@@ -72,7 +72,7 @@ func ParseImageFile(file io.Reader) (Image, error) {
 		for x := 0; x < width; x++ {
 			row = append(row, rgbaToPixel(img.At(x, y).RGBA()))
 		}
-		myImage.pixels = append(myImage.pixels, row)
+		myImage.Pixels = append(myImage.Pixels, row)
 	}
 	return myImage, nil
 }
@@ -90,26 +90,26 @@ func SaveImageToFile(myImage Image) {
 		os.Exit(1)
 	}
 
-	height, width := len(myImage.pixels), len(myImage.pixels[0])
+	height, width := len(myImage.Pixels), len(myImage.Pixels[0])
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			R := myImage.pixels[y][x].R
-			G := myImage.pixels[y][x].G
-			B := myImage.pixels[y][x].B
-			A := myImage.pixels[y][x].A
+			R := myImage.Pixels[y][x].R
+			G := myImage.Pixels[y][x].G
+			B := myImage.Pixels[y][x].B
+			A := myImage.Pixels[y][x].A
 			img.Set(x, y, color.RGBA{R, G, B, A})
 		}
 	}
 
-	jpeg.Encode(file, img, nil)
+	jpeg.Encode(file, img, &jpeg.Options{Quality: 100})
 }
 
 func ImageToGraph(myImage Image) graph.Graph {
 	var edges []graph.Edge
-	var verticies []graph.Node
-	pixels := myImage.pixels
+	var verticies []graph.Vertex
+	pixels := myImage.Pixels
 	for i := range pixels {
 		for j := range pixels[i] {
 			fromCord := Coordinate{X: i, Y: j}
