@@ -13,5 +13,5 @@ func main() {
 	myImage := image.ReadImageFromFile(path, folderNumber)
 	graph := image.ImageToGraph(myImage)
 	mst := graph.MinimalSpanningTree()
-	fmt.Println(len(mst))
+	fmt.Println(len(mst.Edges))
 }

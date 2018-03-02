@@ -11,20 +11,12 @@ import (
 	"os"
 )
 
-type Node = graph.Node
-type Edge = graph.Edge
-type Graph = graph.Graph
-
 type Coordinate struct {
-	X int
-	Y int
+	X, Y int
 }
 
 type Pixel struct {
-	R uint8
-	G uint8
-	B uint8
-	A uint8
+	R, G, B, A uint8
 }
 
 func ColorDistance(p1 Pixel, p2 Pixel) float64 {
@@ -114,9 +106,9 @@ func SaveImageToFile(myImage Image) {
 	jpeg.Encode(file, img, nil)
 }
 
-func ImageToGraph(myImage Image) Graph {
-	var edges []Edge
-	var verticies []Node
+func ImageToGraph(myImage Image) graph.Graph {
+	var edges []graph.Edge
+	var verticies []graph.Node
 	pixels := myImage.pixels
 	for i := range pixels {
 		for j := range pixels[i] {
@@ -124,15 +116,15 @@ func ImageToGraph(myImage Image) Graph {
 			verticies = append(verticies, fromCord)
 			if j+1 < len(pixels[i]) {
 				toCord := Coordinate{X: i, Y: j + 1}
-				edge := Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
+				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
 				edges = append(edges, edge)
 			}
 			if i+1 < len(pixels) {
 				toCord := Coordinate{X: i + 1, Y: j}
-				edge := Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
+				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
 				edges = append(edges, edge)
 			}
 		}
 	}
-	return Graph{Edges: edges, Vertices: verticies}
+	return graph.Graph{Edges: edges, Vertices: verticies}
 }
