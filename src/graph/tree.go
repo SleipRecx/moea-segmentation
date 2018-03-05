@@ -20,6 +20,7 @@ func (t Tree) CalculateTotalCost() float64 {
 	return cost
 }
 
+// Todo: Refactor this (Corry, do not touch)
 func (t Tree) RandomDisjointPartition(n int) [][]Vertex {
 
 	adjacentMap := make(map[Vertex][]Vertex)
