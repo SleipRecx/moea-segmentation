@@ -30,7 +30,6 @@ func NewChromosome(mst graph.Tree, myImage image.Image) Chromosome {
 	return Chromosome{MyImage: myImage, Segments: segments}
 }
 
-// TODO
 func (c Chromosome) CalcEdgeValue() float64 {
 	var edgeValue float64
 	segments := c.Segments
