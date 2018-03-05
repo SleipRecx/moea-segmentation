@@ -25,10 +25,10 @@ func TestMinimalSpanningTree(t *testing.T) {
 
 	g := graph.Graph{Vertices: vertices, Edges: edges}
 	mst := g.MinimalSpanningTree()
-
 	expected := 37.0
 	actual := mst.CalculateTotalCost()
 	if expected != actual {
 		t.Errorf("Expected: %f Was: %f", expected, actual)
 	}
+	t.Log("Test passed.")
 }
