@@ -1,17 +1,30 @@
 package deviation
 
 import (
+	//"fmt"
+
 	"../image"
-	"fmt"
 )
 
 type Pixel = image.Pixel
 
-func calcOverallDeviation(segmentSet [][]Pixel) float64 {
+
+func CalcOverallDeviation(segments [][]image.Coordinate, myImage image.Image) float64 {
 	var deviation float64
-	for i := 0; i < len(segmentSet); i++ {
-		deviation += calcSegmentDeviation(segmentSet[i])
-		fmt.Print("\nSegment number: ", i, " Deviation: ", 1/deviation, "\n")
+	for i := range segments {
+		var pixels []Pixel
+		for j := range segments[i] {
+			x, y := segments[i][j].X, segments[i][j].Y
+			pixel := Pixel{
+				myImage.Pixels[x][y].R,
+				myImage.Pixels[x][y].G,
+				myImage.Pixels[x][y].B,
+				myImage.Pixels[x][y].A,
+			}
+			pixels = append(pixels, pixel)
+		}
+		deviation += calcSegmentDeviation(pixels)
+		//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
 
 	}
 	return 1 / deviation

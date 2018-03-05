@@ -108,25 +108,25 @@ func SaveImageToFile(myImage Image) {
 
 func ImageToGraph(myImage Image) graph.Graph {
 	var edges []graph.Edge
-	var verticies []graph.Vertex
+	var vertices []graph.Vertex
 	pixels := myImage.Pixels
 	for i := range pixels {
 		for j := range pixels[i] {
 			fromCord := Coordinate{X: i, Y: j}
-			verticies = append(verticies, fromCord)
-			if j+1 < len(pixels[i]) {
+			vertices = append(vertices, fromCord)
+			if j + 1 < len(pixels[i]) {
 				toCord := Coordinate{X: i, Y: j + 1}
 				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
 				edges = append(edges, edge)
 			}
-			if i+1 < len(pixels) {
+			if i + 1 < len(pixels) {
 				toCord := Coordinate{X: i + 1, Y: j}
 				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
 				edges = append(edges, edge)
 			}
 		}
 	}
-	return graph.Graph{Edges: edges, Vertices: verticies}
+	return graph.Graph{Edges: edges, Vertices: vertices}
 }
 
 
