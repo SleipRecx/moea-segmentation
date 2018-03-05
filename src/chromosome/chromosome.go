@@ -30,6 +30,8 @@ func NewChromosome(mst graph.Tree, myImage image.Image) Chromosome {
 func (c Chromosome) CalcDeviation () float64 {
 	return deviation.CalcOverallDeviation(c.Segments, c.MyImage)
 }
+
+// TODO
 func (c Chromosome) CalcEdgeValue() float64 {
 	return 2.0
 }
