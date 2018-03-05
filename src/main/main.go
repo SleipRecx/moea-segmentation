@@ -26,9 +26,12 @@ func main() {
 	image.SaveImageToFile(segmentedImage)
 
 	var deviation float64
+	var edgeValue float64
 	for _, chromosome := range population {
 		deviation += chromosome.CalcDeviation()
+		edgeValue += chromosome.CalcEdgeValue()
 	}
 	fmt.Println("Total deviation", deviation)
+	fmt.Println("Total edge value", edgeValue)
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 }
