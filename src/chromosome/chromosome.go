@@ -44,7 +44,7 @@ func (c Chromosome) CalcEdgeValue() float64 {
 			if x - 1 >= 0 {
 				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x-1][y])
 			}
-			if y + 1 < len(myImage.Pixels[i]) {
+			if y + 1 < len(myImage.Pixels[x]) {
 				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x][y+1])
 			}
 			if y - 1 >= 0 {
