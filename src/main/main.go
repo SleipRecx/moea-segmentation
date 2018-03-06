@@ -19,22 +19,10 @@ func main() {
 	imageGraph := image.ImageToGraph(myImage)
 	mst := imageGraph.MinimalSpanningTree()
 	c := chromosome.NewChromosome(mst, myImage, 100)
-
-	/*
-	BUG: code below terminates.
-	c := chromosome.NewChromosome(mst, myImage, 321)
-
-	BUG: code below gives index out of range.
-	c := chromosome.NewChromosome(mst, myImage, 322)
-	*/
+	segmentedImage := image.ReconstructImage(c.Segments, myImage)
+	image.SaveImageToFile(segmentedImage)
 
 	fmt.Println("Total deviation", c.CalcDeviation())
 	fmt.Println("Total edge value", c.CalcEdgeValue())
 	fmt.Println("Total runtime:", time.Now().Sub(start))
-
-	/*
-	segments := minimalSpanningTree.RandomDisjointPartition(1000)
-	segmentedImage := image.ReconstructImage(segments, myImage)
-	image.SaveImageToFile(segmentedImage)
-	*/
 }
