@@ -16,8 +16,8 @@ type Chromosome struct {
 	Segments [][]Coordinate
 }
 
-func NewChromosome(mst graph.Tree, myImage image.Image) Chromosome {
-	vertices := mst.RandomDisjointPartition(100)
+func NewChromosome(mst graph.Tree, myImage image.Image, initialSegments int) Chromosome {
+	vertices := mst.RandomDisjointPartition(initialSegments)
 	var segments [][]Coordinate
 	for i := range vertices {
 		var coordinateList []Coordinate
@@ -106,10 +106,10 @@ func coordinatesToPixels(segment []Coordinate, myImage image.Image) []Pixel {
 	for i := range segment {
 		x, y := segment[i].X, segment[i].Y
 		pixel := Pixel{
-			myImage.Pixels[x][y].R,
-			myImage.Pixels[x][y].G,
-			myImage.Pixels[x][y].B,
-			myImage.Pixels[x][y].A,
+			R: myImage.Pixels[x][y].R,
+			G: myImage.Pixels[x][y].G,
+			B: myImage.Pixels[x][y].B,
+			A: myImage.Pixels[x][y].A,
 		}
 		pixels = append(pixels, pixel)
 	}
