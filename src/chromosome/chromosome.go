@@ -53,7 +53,7 @@ func (c Chromosome) CalcEdgeValue() float64 {
 		}
 		//fmt.Println("Segment number: ", i, " Edge value: ", 1/edgeValue)
 	}
-	return 1 / edgeValue
+	return  - edgeValue
 }
 
 
