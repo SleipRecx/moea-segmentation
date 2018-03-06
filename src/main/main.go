@@ -12,26 +12,29 @@ var _ = fmt.Println
 
 func main() {
 	start := time.Now()
-	var population []chromosome.Chromosome
 
 	path := "./test_images/"
 	folderNumber := "1"
 	myImage := image.ReadImageFromFile(path, folderNumber)
 	imageGraph := image.ImageToGraph(myImage)
-	minimalSpanningTree := imageGraph.MinimalSpanningTree()
-	c := chromosome.NewChromosome(minimalSpanningTree, myImage)
-	population = append(population, c)
-	segments := minimalSpanningTree.RandomDisjointPartition(10)
+	mst := imageGraph.MinimalSpanningTree()
+	c := chromosome.NewChromosome(mst, myImage, 100)
+
+	/*
+	BUG: code below terminates.
+	c := chromosome.NewChromosome(mst, myImage, 321)
+
+	BUG: code below gives index out of range.
+	c := chromosome.NewChromosome(mst, myImage, 322)
+	*/
+
+	fmt.Println("Total deviation", c.CalcDeviation())
+	fmt.Println("Total edge value", c.CalcEdgeValue())
+	fmt.Println("Total runtime:", time.Now().Sub(start))
+
+	/*
+	segments := minimalSpanningTree.RandomDisjointPartition(1000)
 	segmentedImage := image.ReconstructImage(segments, myImage)
 	image.SaveImageToFile(segmentedImage)
-
-	var deviation float64
-	var edgeValue float64
-	for _, chromosome := range population {
-		deviation += chromosome.CalcDeviation()
-		edgeValue += chromosome.CalcEdgeValue()
-	}
-	fmt.Println("Total deviation", deviation)
-	fmt.Println("Total edge value", edgeValue)
-	fmt.Println("Total runtime:", time.Now().Sub(start))
+	*/
 }
