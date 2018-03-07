@@ -34,26 +34,42 @@ func (c Chromosome) CalcEdgeValue() float64 {
 	var edgeValue float64
 	segments := c.Segments
 	myImage := c.MyImage
-	for i := range segments {
-		pixelSegment := coordinatesToPixels(segments[i], myImage)
-		for j := range segments[i] {
-			x, y := segments[i][j].X, segments[i][j].Y
-			if x + 1 < len(myImage.Pixels) {
-				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x+1][y])
-			}
-			if x - 1 >= 0 {
-				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x-1][y])
-			}
-			if y + 1 < len(myImage.Pixels[x]) {
-				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x][y+1])
-			}
-			if y - 1 >= 0 {
-				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x][y-1])
-			}
-		}
+	for _, segment := range segments {
+		edgeValue += calcSegmentEdgeValue(segment, myImage)
 		//fmt.Println("Segment number: ", i, " Edge value: ", 1/edgeValue)
 	}
-	return  - edgeValue
+	return -edgeValue
+}
+
+func calcSegmentEdgeValue(segment []image.Coordinate, myImage image.Image) float64 {
+	var edgeValue float64
+	pixelSegment := coordinatesToPixels(segment, myImage)
+
+	for i, cord := range segment {
+		x, y := cord.X, cord.Y
+		if checkIfItemInSegment(segment, Coordinate{x + 1, y}) {
+			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x+1][y])
+		}
+		if checkIfItemInSegment(segment, Coordinate{x - 1, y}) {
+			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x-1][y])
+		}
+		if checkIfItemInSegment(segment, Coordinate{x, y + 1}) {
+			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y + 1])
+		}
+		if checkIfItemInSegment(segment, Coordinate{x, y - 1}) {
+			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y - 1])
+		}
+	}
+	return edgeValue
+}
+
+func checkIfItemInSegment(segment[]image.Coordinate, coordinate Coordinate) bool {
+	for _, item := range segment {
+		if item == coordinate {
+			return true
+		}
+	}
+	return false
 }
 
 
@@ -67,6 +83,9 @@ func (c Chromosome) CalcDeviation () float64 {
 		//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
 	}
 
+	if deviation == 0.0 {
+		return 0.0
+	}
 	return 1 / deviation
 }
 

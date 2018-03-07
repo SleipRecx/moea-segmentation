@@ -2,15 +2,16 @@ package tests
 
 import (
 	"testing"
-	"fmt"
 
 	"../image"
 	."../chromosome"
+	"fmt"
 )
 
 func initTest() Chromosome {
 	pixels := make([][]Pixel,3,3)
 	for i := range pixels{
+		fmt.Println(i)
 		tmp := []Pixel{{R:255, G:0, B:0, A:255}, {R:255, G:0, B:0, A:255}, {R:255, G:0, B:0, A:255}}
 		pixels[i] = tmp
 	}
@@ -35,7 +36,6 @@ func TestDeviation(t *testing.T) {
 	c := initTest()
 	deviation := c.CalcDeviation()
 	expectedDeviation := 0.0
-	fmt.Println(expectedDeviation, deviation)
 	if expectedDeviation != deviation {
 		t.Error("Expected", expectedDeviation, "but got", deviation)
 	}

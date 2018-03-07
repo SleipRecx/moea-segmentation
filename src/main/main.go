@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -19,10 +20,9 @@ func main() {
 	imageGraph := image.ImageToGraph(myImage)
 	mst := imageGraph.MinimalSpanningTree()
 	c := chromosome.NewChromosome(mst, myImage, 100)
-	segmentedImage := image.ReconstructImage(c.Segments, myImage)
-	image.SaveImageToFile(segmentedImage)
 
 	fmt.Println("Total deviation", c.CalcDeviation())
 	fmt.Println("Total edge value", c.CalcEdgeValue())
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 }
+
