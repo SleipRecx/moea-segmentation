@@ -3,37 +3,40 @@ package image
 import (
 	"../graph"
 	"fmt"
+	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"image/jpeg"
+	"image/png"
 	"io"
-	"math"
 	"os"
 )
 
-type Coordinate struct {
-	X, Y int
-}
-
-type Pixel struct {
-	R, G, B, A uint8
-}
-
-func ColorDistance(p1 Pixel, p2 Pixel) float64 {
-	r := math.Pow(float64(p1.R-p2.R), 2)
-	g := math.Pow(float64(p1.G-p2.G), 2)
-	b := math.Pow(float64(p1.B-p2.B), 2)
-	a := math.Pow(float64(p1.A-p2.A), 2)
-
-	return math.Sqrt(r + g + b + a)
-}
-
-func (pixel Pixel) Distance(pixel2 Pixel) float64 {
-	return ColorDistance(pixel, pixel2)
-}
-
 type Image struct {
 	Pixels [][]Pixel
+}
+
+func (i *Image) ConvertToGraph() graph.Graph {
+	var edges []graph.Edge
+	var vertices []graph.Vertex
+	pixels := i.Pixels
+	for i := range pixels {
+		for j := range pixels[i] {
+			fromCord := Coordinate{X: i, Y: j}
+			vertices = append(vertices, fromCord)
+			if j+1 < len(pixels[i]) {
+				toCord := Coordinate{X: i, Y: j + 1}
+				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
+				edges = append(edges, edge)
+			}
+			if i+1 < len(pixels) {
+				toCord := Coordinate{X: i + 1, Y: j}
+				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
+				edges = append(edges, edge)
+			}
+		}
+	}
+	return graph.Graph{Edges: edges, Vertices: vertices}
 }
 
 func ReadImageFromFile(path string, folderNumber string) Image {
@@ -59,6 +62,7 @@ func ParseImageFile(file io.Reader) (Image, error) {
 	var myImage Image
 
 	img, _, err := image.Decode(file)
+	img = imaging.Blur(img, .4)
 
 	if err != nil {
 		return myImage, err
@@ -77,12 +81,8 @@ func ParseImageFile(file io.Reader) (Image, error) {
 	return myImage, nil
 }
 
-func rgbaToPixel(r uint32, g uint32, b uint32, a uint32) Pixel {
-	return Pixel{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
-}
-
 func SaveImageToFile(myImage Image) {
-	file, err := os.Create("image.jpg")
+	file, err := os.Create("image.png")
 	defer file.Close()
 
 	if err != nil {
@@ -102,36 +102,12 @@ func SaveImageToFile(myImage Image) {
 			img.Set(x, y, color.RGBA{R, G, B, A})
 		}
 	}
-
-	jpeg.Encode(file, img, &jpeg.Options{Quality: 100})
+	encoder := png.Encoder{CompressionLevel: -1}
+	encoder.Encode(file, img)
 }
-
-func ImageToGraph(myImage Image) graph.Graph {
-	var edges []graph.Edge
-	var vertices []graph.Vertex
-	pixels := myImage.Pixels
-	for i := range pixels {
-		for j := range pixels[i] {
-			fromCord := Coordinate{X: i, Y: j}
-			vertices = append(vertices, fromCord)
-			if j + 1 < len(pixels[i]) {
-				toCord := Coordinate{X: i, Y: j + 1}
-				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
-				edges = append(edges, edge)
-			}
-			if i + 1 < len(pixels) {
-				toCord := Coordinate{X: i + 1, Y: j}
-				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
-				edges = append(edges, edge)
-			}
-		}
-	}
-	return graph.Graph{Edges: edges, Vertices: vertices}
-}
-
 
 func ReconstructImage(segments [][]interface{}, myImage Image) Image {
-	for _,segment := range segments {
+	for _, segment := range segments {
 		r := 1.0
 		g := 1.0
 		b := 1.0

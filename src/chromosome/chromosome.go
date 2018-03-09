@@ -3,8 +3,8 @@ package chromosome
 import (
 	//"fmt"
 
-	"../image"
 	"../graph"
+	"../image"
 )
 
 type Coordinate = image.Coordinate
@@ -12,7 +12,7 @@ type Coordinate = image.Coordinate
 type Pixel = image.Pixel
 
 type Chromosome struct {
-	MyImage image.Image
+	MyImage  image.Image
 	Segments [][]Coordinate
 }
 
@@ -21,11 +21,11 @@ func NewChromosome(mst graph.Tree, myImage image.Image, initialSegments int) Chr
 	var segments [][]Coordinate
 	for i := range vertices {
 		var coordinateList []Coordinate
-			for j := range vertices[i] {
-				coordinates := vertices[i][j].(Coordinate)
-				coordinateList = append(coordinateList, coordinates)
-			}
-			segments = append(segments, coordinateList)
+		for j := range vertices[i] {
+			coordinates := vertices[i][j].(Coordinate)
+			coordinateList = append(coordinateList, coordinates)
+		}
+		segments = append(segments, coordinateList)
 	}
 	return Chromosome{MyImage: myImage, Segments: segments}
 }
@@ -38,16 +38,16 @@ func (c Chromosome) CalcEdgeValue() float64 {
 		pixelSegment := coordinatesToPixels(segments[i], myImage)
 		for j := range segments[i] {
 			x, y := segments[i][j].X, segments[i][j].Y
-			if x + 1 < len(myImage.Pixels) {
+			if x+1 < len(myImage.Pixels) {
 				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x+1][y])
 			}
-			if x - 1 >= 0 {
+			if x-1 >= 0 {
 				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x-1][y])
 			}
-			if y + 1 < len(myImage.Pixels[i]) {
+			if y+1 < len(myImage.Pixels[i]) {
 				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x][y+1])
 			}
-			if y - 1 >= 0 {
+			if y-1 >= 0 {
 				edgeValue += pixelSegment[j].Distance(myImage.Pixels[x][y-1])
 			}
 		}
@@ -56,8 +56,7 @@ func (c Chromosome) CalcEdgeValue() float64 {
 	return 1 / edgeValue
 }
 
-
-func (c Chromosome) CalcDeviation () float64 {
+func (c Chromosome) CalcDeviation() float64 {
 	var deviation float64
 	segments := c.Segments
 	myImage := c.MyImage

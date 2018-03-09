@@ -45,5 +45,6 @@ Temporary Items
 .apdisk
 .idea
 *.jpg
+*.png
 
 # End of https://www.gitignore.io/api/go,macos
