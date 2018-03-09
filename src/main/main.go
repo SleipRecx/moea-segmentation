@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -10,7 +11,6 @@ import (
 
 func main() {
 	start := time.Now()
-
 	path := "./test_images/"
 	folderNumber := "3"
 
@@ -19,8 +19,14 @@ func main() {
 	segments := imageGraph.GraphSegmentation(1000)
 	c := chromosome.NewChromosome(segments, myImage)
 
-	//segmentedImage := image.ReconstructImage(segments, myImage)
-	//image.SaveImageToFile(segmentedImage)
+
+	fmt.Println(c.CalcEdgeValue())
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
+	segmentedImage := image.ReconstructImage(c.Segments, myImage)
+	image.SaveImageToFile(segmentedImage)
+
+
+
 }
+
