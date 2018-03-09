@@ -39,7 +39,6 @@ func (g *Graph) GraphSegmentation(k int) [][]Vertex {
 			}
 		}
 	}
-
 	segMap := make(map[*Element][]Vertex)
 
 	for _, vertex := range g.Vertices {
@@ -49,8 +48,8 @@ func (g *Graph) GraphSegmentation(k int) [][]Vertex {
 	return extractMapValues(segMap)
 }
 
-func (g *Graph) MinimalSpanningTree() Tree {
-	var tree Tree
+func (g *Graph) MinimalSpanningTree() []Edge {
+	tree := make([]Edge,0)
 	sort.Slice(g.Edges, func(i, j int) bool {
 		return g.Edges[i].Weight < g.Edges[j].Weight
 	})
@@ -63,7 +62,7 @@ func (g *Graph) MinimalSpanningTree() Tree {
 	for _, edge := range g.Edges {
 		if FindSet(disjointMap[edge.U]) != FindSet(disjointMap[edge.V]) {
 			Union(disjointMap[edge.U], disjointMap[edge.V])
-			tree.Edges = append(tree.Edges, edge)
+			tree = append(tree, edge)
 		}
 	}
 	return tree

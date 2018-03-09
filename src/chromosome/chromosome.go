@@ -16,13 +16,12 @@ type Chromosome struct {
 	Segments [][]Coordinate
 }
 
-func NewChromosome(mst graph.Tree, myImage image.Image, initialSegments int) Chromosome {
-	vertices := mst.RandomDisjointPartition(initialSegments)
+func NewChromosome(partitions [][]graph.Vertex, myImage image.Image) Chromosome {
 	var segments [][]Coordinate
-	for i := range vertices {
+	for i := range partitions {
 		var coordinateList []Coordinate
-		for j := range vertices[i] {
-			coordinates := vertices[i][j].(Coordinate)
+		for j := range partitions[i] {
+			coordinates := partitions[i][j].(Coordinate)
 			coordinateList = append(coordinateList, coordinates)
 		}
 		segments = append(segments, coordinateList)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"../chromosome"
 	"../image"
 )
 
@@ -16,10 +17,10 @@ func main() {
 	myImage := image.ReadImageFromFile(path, folderNumber)
 	imageGraph := myImage.ConvertToGraph()
 	segments := imageGraph.GraphSegmentation(1000)
+	c := chromosome.NewChromosome(segments, myImage)
 
-	segmentedImage := image.ReconstructImage(segments, myImage)
-	image.SaveImageToFile(segmentedImage)
-
+	//segmentedImage := image.ReconstructImage(segments, myImage)
+	//image.SaveImageToFile(segmentedImage)
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
 }
