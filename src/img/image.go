@@ -1,4 +1,4 @@
-package image
+package img
 
 import (
 	"../graph"
@@ -50,6 +50,7 @@ func ReadImageFromFile(path string, folderNumber string) Image {
 	}
 
 	defer file.Close()
+
 	myImage, err := ParseImageFile(file)
 
 	if err != nil {
@@ -63,7 +64,7 @@ func ParseImageFile(file io.Reader) (Image, error) {
 	var myImage Image
 
 	img, _, err := image.Decode(file)
-	img = imaging.Blur(img, .4)
+	img = imaging.Blur(img, .8)
 
 	if err != nil {
 		return myImage, err
@@ -82,8 +83,8 @@ func ParseImageFile(file io.Reader) (Image, error) {
 	return myImage, nil
 }
 
-func SaveImageToFile(myImage Image) {
-	file, err := os.Create("image.png")
+func SaveImageToFile(myImage Image, filename string) {
+	file, err := os.Create(filename + ".png")
 	defer file.Close()
 
 	if err != nil {

@@ -1,13 +1,13 @@
-package stack
+package ds
 
 type Stack struct {
-	top  *Element
+	top  *StackElement
 	size int
 }
 
-type Element struct {
+type StackElement struct {
 	value interface{}
-	next  *Element
+	next  *StackElement
 }
 
 func (s *Stack) Len() int {
@@ -15,7 +15,7 @@ func (s *Stack) Len() int {
 }
 
 func (s *Stack) Push(value interface{}) {
-	s.top = &Element{value, s.top}
+	s.top = &StackElement{value, s.top}
 	s.size++
 }
 

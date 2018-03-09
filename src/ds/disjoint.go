@@ -1,20 +1,20 @@
-package graph
+package ds
 
-type Element struct {
-	Parent *Element
+type DisjointSet struct {
+	Parent *DisjointSet
 	Rank   int
 	Value  interface{}
 }
 
-func MakeSet(value interface{}) *Element {
-	e := new(Element)
+func MakeSet(value interface{}) *DisjointSet {
+	e := new(DisjointSet)
 	e.Parent = e
 	e.Rank = 0
 	e.Value = value
 	return e
 }
 
-func FindSet(e *Element) *Element {
+func FindSet(e *DisjointSet) *DisjointSet {
 	if e == e.Parent {
 		return e
 	}
@@ -22,7 +22,7 @@ func FindSet(e *Element) *Element {
 	return e.Parent
 }
 
-func Union(e1, e2 *Element) {
+func Union(e1, e2 *DisjointSet) {
 	r1 := FindSet(e1)
 	r2 := FindSet(e2)
 

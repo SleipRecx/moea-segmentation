@@ -3,24 +3,23 @@ package main
 import (
 	"fmt"
 	"time"
+	"strconv"
 
-	ga "../genetic"
-	"../image"
+	"../ga"
+	"../img"
 )
 
 func main() {
 	start := time.Now()
 	path := "./test_images/"
-	folderNumber := "9"
+	folderNumber := "1"
 
-	myImage := image.ReadImageFromFile(path, folderNumber)
-
-
-
-	pop := ga.NewPopulation(10, myImage)
-	c := pop.Individuals[0]
-	img := image.ReconstructImage(c.Segments, myImage)
-	image.SaveImageToFile(img)
+	myImage := img.ReadImageFromFile(path, folderNumber)
+	population := ga.NewPopulation(100, myImage)
+	for i := range population.Individuals {
+		segImage := img.ReconstructImage(population.Individuals[i].Segments, myImage)
+		img.SaveImageToFile(segImage, "output/img" + strconv.Itoa(i))
+	}
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
 }
