@@ -26,6 +26,7 @@ func (i *Image) ConvertToGraph() graph.Graph {
 			vertices = append(vertices, fromCord)
 			if j+1 < len(pixels[i]) {
 				toCord := Coordinate{X: i, Y: j + 1}
+
 				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
 				edges = append(edges, edge)
 			}
@@ -107,7 +108,7 @@ func SaveImageToFile(myImage Image) {
 }
 
 func ReconstructImage(segments [][]Coordinate, myImage Image) Image {
-	for _,segment := range segments {
+	for _, segment := range segments {
 		r := 1.0
 		g := 1.0
 		b := 1.0

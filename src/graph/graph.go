@@ -49,7 +49,7 @@ func (g *Graph) GraphSegmentation(k int) [][]Vertex {
 }
 
 func (g *Graph) MinimalSpanningTree() []Edge {
-	tree := make([]Edge,0)
+	tree := make([]Edge, 0)
 	sort.Slice(g.Edges, func(i, j int) bool {
 		return g.Edges[i].Weight < g.Edges[j].Weight
 	})

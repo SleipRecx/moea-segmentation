@@ -1,7 +1,7 @@
-package chromosome
+package genetic
 
 import (
-	//"fmt"
+
 
 	"../graph"
 	"../image"
@@ -53,16 +53,16 @@ func calcSegmentEdgeValue(segment []image.Coordinate, myImage image.Image) float
 			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x-1][y])
 		}
 		if checkIfItemInSegment(segment, Coordinate{x, y + 1}) {
-			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y + 1])
+			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y+1])
 		}
 		if checkIfItemInSegment(segment, Coordinate{x, y - 1}) {
-			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y - 1])
+			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y-1])
 		}
 	}
 	return edgeValue
 }
 
-func checkIfItemInSegment(segment[]image.Coordinate, coordinate Coordinate) bool {
+func checkIfItemInSegment(segment []image.Coordinate, coordinate Coordinate) bool {
 	for _, item := range segment {
 		if item == coordinate {
 			return true
@@ -71,8 +71,7 @@ func checkIfItemInSegment(segment[]image.Coordinate, coordinate Coordinate) bool
 	return false
 }
 
-
-func (c Chromosome) CalcDeviation () float64 {
+func (c Chromosome) CalcDeviation() float64 {
 	var deviation float64
 	segments := c.Segments
 	myImage := c.MyImage

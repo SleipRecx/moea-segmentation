@@ -1,35 +1,26 @@
-
 package main
 
 import (
 	"fmt"
 	"time"
 
-	"../chromosome"
+	ga "../genetic"
 	"../image"
 )
 
 func main() {
 	start := time.Now()
 	path := "./test_images/"
-	folderNumber := "3"
+	folderNumber := "9"
 
 	myImage := image.ReadImageFromFile(path, folderNumber)
-	imageGraph := myImage.ConvertToGraph()
-	segments := imageGraph.GraphSegmentation(100000)
-	c := chromosome.NewChromosome(segments, myImage)
 
-	segmentedImage := image.ReconstructImage(c.Segments, myImage)
-	image.SaveImageToFile(segmentedImage)
+
+
+	pop := ga.NewPopulation(10, myImage)
+	c := pop.Individuals[0]
+	img := image.ReconstructImage(c.Segments, myImage)
+	image.SaveImageToFile(img)
 	fmt.Println("Total runtime:", time.Now().Sub(start))
-	fmt.Println(c.CalcEdgeValue())
-	fmt.Println("Total runtime:", time.Now().Sub(start))
-
-
-
-
-
-
 
 }
-
