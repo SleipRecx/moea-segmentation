@@ -129,3 +129,50 @@ func ReconstructImage(segments [][]Coordinate, myImage Image) Image {
 	}
 	return myImage
 }
+
+func coordinateInSegment(segment []Coordinate, coordinate Coordinate) bool {
+	for _, item := range segment {
+		if item == coordinate {
+			return true
+		}
+	}
+	return false
+}
+
+func inImage(cord Coordinate, myImage Image) bool {
+	if cord.X < len(myImage.Pixels) && cord.Y < len(myImage.Pixels[0]) {
+		return true
+	}
+	return false
+}
+
+func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int) {
+	height := len(myImage.Pixels)
+	width := len(myImage.Pixels[0])
+	newImage := image.NewRGBA(image.Rect(0, 0, width, height))
+	for i := range segments {
+		for _, cord := range segments[i] {
+			x, y := cord.X, cord.Y
+			right := Coordinate{x + 1, y}
+			left := Coordinate{x - 1, y}
+			up := Coordinate{x, y + 1}
+			down := Coordinate{x, y - 1}
+
+			neighbours := make([]Coordinate, 0)
+			neighbours = append(neighbours, right, left, up, down)
+
+			for _, neighbour := range neighbours {
+				if inImage(neighbour, myImage) {
+					newImage.Set(y, x, color.RGBA{255, 255, 255, 255})
+					if segmentMap[neighbour] != segmentMap[cord] {
+						newImage.Set(y, x, color.RGBA{0, 0, 0, 255})
+						break
+					}
+				}
+			}
+		}
+	}
+	f, _ := os.OpenFile("edge-detection.png", os.O_WRONLY|os.O_CREATE, 0600)
+	defer f.Close()
+	png.Encode(f, newImage)
+}

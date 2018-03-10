@@ -12,14 +12,18 @@ import (
 func main() {
 	start := time.Now()
 	path := "./test_images/"
-	folderNumber := "1"
+	folderNumber := "4"
 
 	myImage := img.ReadImageFromFile(path, folderNumber)
-	population := ga.NewPopulation(10, myImage)
+	population := ga.NewPopulation(5, myImage)
 	for i := range population.Individuals {
 		segImage := img.ReconstructImage(population.Individuals[i].Segments, myImage)
 		img.SaveImageToFile(segImage, "output/img" + strconv.Itoa(i))
 	}
 	fmt.Println("Total runtime:", time.Now().Sub(start))
+	c := population.Individuals[0]
+	img.SaveEdgeDetectionImage(c.Segments, myImage, c.SegmentMap)
+	fmt.Println("Total deviation", c.CalcDeviation())
+	fmt.Println("Total edge value", c.CalcEdgeValue())
 
 }

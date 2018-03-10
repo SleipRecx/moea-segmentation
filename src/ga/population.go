@@ -10,12 +10,12 @@ import (
 )
 
 type Population struct {
-	Individuals []Chromosome
+	Individuals []Phenotype
 	Size        int
 }
 
 func NewPopulation(size int, myImage img.Image) Population {
-	individuals := make([]Chromosome, 0)
+	individuals := make([]Phenotype, 0)
 	imageGraph := myImage.ConvertToGraph()
 
 	results := make(chan [][]img.Coordinate, size)
