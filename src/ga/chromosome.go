@@ -25,6 +25,22 @@ func (c Chromosome) CalcEdgeValue() float64 {
 	return -edgeValue
 }
 
+func (c Chromosome) CalcDeviation() float64 {
+	var deviation float64
+	segments := c.Segments
+	myImage := c.MyImage
+	for i := range segments {
+		pixelSegment := coordinatesToPixels(segments[i], myImage)
+		deviation += calcSegmentDeviation(pixelSegment)
+		//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
+	}
+
+	if deviation == 0.0 {
+		return 0.0
+	}
+	return 1 / deviation
+}
+
 func calcSegmentEdgeValue(segment []img.Coordinate, myImage img.Image) float64 {
 	var edgeValue float64
 	pixelSegment := coordinatesToPixels(segment, myImage)
@@ -54,22 +70,6 @@ func checkIfItemInSegment(segment []img.Coordinate, coordinate img.Coordinate) b
 		}
 	}
 	return false
-}
-
-func (c Chromosome) CalcDeviation() float64 {
-	var deviation float64
-	segments := c.Segments
-	myImage := c.MyImage
-	for i := range segments {
-		pixelSegment := coordinatesToPixels(segments[i], myImage)
-		deviation += calcSegmentDeviation(pixelSegment)
-		//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
-	}
-
-	if deviation == 0.0 {
-		return 0.0
-	}
-	return 1 / deviation
 }
 
 func calcSegmentDeviation(segment []img.Pixel) float64 {
