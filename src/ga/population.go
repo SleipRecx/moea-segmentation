@@ -42,8 +42,8 @@ func graphSegmentWorker(imageGraph graph.Graph, id int, jobs <-chan int, results
 	for j := range jobs {
 		fmt.Println("worker", id, "started  job", j)
 		rand.Seed(time.Now().UnixNano())
-		k := rand.Intn(300 - 200) + 200
-		segments := imageGraph.GraphSegmentation(k)
+		//k := rand.Intn(300 - 200) + 200
+		segments := imageGraph.GraphSegmentation(400)
 		fmt.Println("worker", id, "finished job", j)
 		results <- segments
 	}
