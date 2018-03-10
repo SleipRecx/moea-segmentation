@@ -21,6 +21,9 @@ func main() {
 		img.SaveImageToFile(segImage, "output/img" + strconv.Itoa(i))
 	}
 	fmt.Println("Total runtime:", time.Now().Sub(start))
-	img.SaveEdgeDetectionImage(population.Individuals[0].Segments, myImage)
+	c := population.Individuals[0]
+	img.SaveEdgeDetectionImage(c.Segments, myImage, c.SegmentMap)
+	fmt.Println("Total deviation", c.CalcDeviation())
+	fmt.Println("Total edge value", c.CalcEdgeValue())
 
 }

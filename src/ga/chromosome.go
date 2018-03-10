@@ -9,10 +9,12 @@ import (
 type Chromosome struct {
 	MyImage  img.Image
 	Segments [][]img.Coordinate
+	SegmentMap map[img.Coordinate]int
 }
 
 func NewChromosome(partitions [][]graph.Vertex, myImage img.Image) Chromosome {
 	segments := make([][]img.Coordinate, 0)
+	segmentMap := make(map[img.Coordinate]int)
 	for i := range partitions {
 		var coordinateList []img.Coordinate
 		for j := range partitions[i] {
@@ -20,41 +22,40 @@ func NewChromosome(partitions [][]graph.Vertex, myImage img.Image) Chromosome {
 			coordinateList = append(coordinateList, coordinates)
 		}
 		segments = append(segments, coordinateList)
+		for _, cord := range coordinateList {
+			segmentMap[cord] = i
+		}
 	}
-	return Chromosome{MyImage: myImage, Segments: segments}
+	return Chromosome{MyImage: myImage, Segments: segments, SegmentMap: segmentMap}
 }
 
 func (c Chromosome) CalcEdgeValue() float64 {
 	var edgeValue float64
 	segments := c.Segments
 	myImage := c.MyImage
-	for _, segment := range segments {
-		edgeValue += calcSegmentEdgeValue(segment, myImage)
-		//fmt.Println("Segment number: ", i, " Edge value: ", 1/edgeValue)
-	}
-	return -edgeValue
-}
+	segmentMap := c.SegmentMap
+	for i := range segments {
+		for _, cord := range segments[i] {
+			x, y := cord.X, cord.Y
+			right := img.Coordinate{x + 1, y}
+			left := img.Coordinate{x - 1, y}
+			up := img.Coordinate{x, y + 1}
+			down := img.Coordinate{x, y - 1}
 
-func calcSegmentEdgeValue(segment []img.Coordinate, myImage img.Image) float64 {
-	var edgeValue float64
-	pixelSegment := coordinatesToPixels(segment, myImage)
+			neighbours := make([]img.Coordinate, 0)
+			neighbours = append(neighbours, right, left, up, down)
 
-	for i, cord := range segment {
-		x, y := cord.X, cord.Y
-		if checkIfItemInSegment(segment, img.Coordinate{x + 1, y}) {
-			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x+1][y])
-		}
-		if checkIfItemInSegment(segment, img.Coordinate{x - 1, y}) {
-			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x-1][y])
-		}
-		if checkIfItemInSegment(segment, img.Coordinate{x, y + 1}) {
-			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y+1])
-		}
-		if checkIfItemInSegment(segment, img.Coordinate{x, y - 1}) {
-			edgeValue += pixelSegment[i].Distance(myImage.Pixels[x][y-1])
+			for _, neighbour := range neighbours {
+				if segmentMap[neighbour] == segmentMap[cord] {
+					neighX, neighY := neighbour.X, neighbour.Y
+					edgeValue += myImage.Pixels[x][y].Distance(myImage.Pixels[neighX][neighY])
+					//fmt.Println("Edge", img.Coordinate{x, y}, img.Coordinate{neighX, neighY})
+				}
+			}
+
 		}
 	}
-	return edgeValue
+	return - edgeValue
 }
 
 func checkIfItemInSegment(segment []img.Coordinate, coordinate img.Coordinate) bool {
@@ -71,15 +72,19 @@ func (c Chromosome) CalcDeviation() float64 {
 	segments := c.Segments
 	myImage := c.MyImage
 	for i := range segments {
-		pixelSegment := coordinatesToPixels(segments[i], myImage)
-		deviation += calcSegmentDeviation(pixelSegment)
-		//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
+		if len(segments[i]) > 0 {
+			pixelSegment := coordinatesToPixels(segments[i], myImage)
+			deviation += calcSegmentDeviation(pixelSegment)
+			//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
+		}
 	}
 
 	if deviation == 0.0 {
 		return 0.0
 	}
-	return 1 / deviation
+	return 1.0 / deviation
+
+
 }
 
 func calcSegmentDeviation(segment []img.Pixel) float64 {

@@ -146,16 +146,10 @@ func inImage(cord Coordinate, myImage Image) bool {
 	return false
 }
 
-func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image) {
+func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int) {
 	height := len(myImage.Pixels)
 	width := len(myImage.Pixels[0])
 	newImage := image.NewRGBA(image.Rect(0, 0, width, height))
-	segmentMap := make(map[Coordinate]int)
-	for i := range segments {
-		for j := range segments[i] {
-			segmentMap[segments[i][j]] = i
-		}
-	}
 	for i := range segments {
 		for _, cord := range segments[i] {
 			x, y := cord.X, cord.Y
@@ -173,6 +167,7 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image) {
 					if segmentMap[neighbour] != segmentMap[cord] {
 						newImage.Set(y, x, color.RGBA{0, 0, 0, 255})
 						break
+					}
 				}
 			}
 		}
