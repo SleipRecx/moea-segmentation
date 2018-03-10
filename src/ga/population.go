@@ -18,7 +18,7 @@ func NewPopulation(size int, myImage img.Image) Population {
 	individuals := make([]Chromosome, 0)
 	imageGraph := myImage.ConvertToGraph()
 
-	results := make(chan [][]graph.Vertex, size)
+	results := make(chan [][]img.Coordinate, size)
 	jobs := make(chan int, size)
 	nWorkers := 4
 
@@ -38,13 +38,25 @@ func NewPopulation(size int, myImage img.Image) Population {
 	return Population{Individuals: individuals, Size: size}
 }
 
-func graphSegmentWorker(imageGraph graph.Graph, id int, jobs <-chan int, results chan<- [][]graph.Vertex) {
+func graphSegmentWorker(imageGraph graph.Graph, id int, jobs <-chan int, results chan<- [][]img.Coordinate) {
 	for j := range jobs {
 		fmt.Println("worker", id, "started  job", j)
 		rand.Seed(time.Now().UnixNano())
 		k := rand.Intn(300 - 200) + 200
 		segments := imageGraph.GraphSegmentation(k)
 		fmt.Println("worker", id, "finished job", j)
-		results <- segments
+		results <- mapVertexToCoordinate(segments)
 	}
+}
+
+func mapVertexToCoordinate(partitions [][]graph.Vertex) [][]img.Coordinate {
+	segments := make([][]img.Coordinate, 0, 0)
+	for i := range partitions {
+		seg := make([]img.Coordinate, 0)
+		for j := range partitions[i] {
+			seg = append(seg, partitions[i][j].(img.Coordinate))
+		}
+		segments = append(segments, seg)
+	}
+	return segments
 }

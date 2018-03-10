@@ -15,7 +15,7 @@ func main() {
 	folderNumber := "1"
 
 	myImage := img.ReadImageFromFile(path, folderNumber)
-	population := ga.NewPopulation(100, myImage)
+	population := ga.NewPopulation(10, myImage)
 	for i := range population.Individuals {
 		segImage := img.ReconstructImage(population.Individuals[i].Segments, myImage)
 		img.SaveImageToFile(segImage, "output/img" + strconv.Itoa(i))

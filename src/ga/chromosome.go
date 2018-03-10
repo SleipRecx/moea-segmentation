@@ -1,7 +1,6 @@
 package ga
 
 import (
-	"../graph"
 	"../img"
 )
 
@@ -11,16 +10,7 @@ type Chromosome struct {
 	Segments [][]img.Coordinate
 }
 
-func NewChromosome(partitions [][]graph.Vertex, myImage img.Image) Chromosome {
-	segments := make([][]img.Coordinate, 0)
-	for i := range partitions {
-		var coordinateList []img.Coordinate
-		for j := range partitions[i] {
-			coordinates := partitions[i][j].(img.Coordinate)
-			coordinateList = append(coordinateList, coordinates)
-		}
-		segments = append(segments, coordinateList)
-	}
+func NewChromosome(segments [][]img.Coordinate, myImage img.Image) Chromosome {
 	return Chromosome{MyImage: myImage, Segments: segments}
 }
 
