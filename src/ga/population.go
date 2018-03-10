@@ -26,13 +26,13 @@ func NewPopulation(size int, myImage img.Image) Population {
 		go graphSegmentWorker(imageGraph, w, jobs, results)
 	}
 
-	for j:= 1; j <= size; j++ {
+	for j := 1; j <= size; j++ {
 		jobs <- j
 	}
 
 	for r := 1; r <= size; r++ {
-		result := <- results
-		individuals = append(individuals, NewChromosome(result, myImage))
+		result := <-results
+		individuals = append(individuals, NewPhenotype(result, myImage))
 	}
 
 	return Population{Individuals: individuals, Size: size}
@@ -42,7 +42,7 @@ func graphSegmentWorker(imageGraph graph.Graph, id int, jobs <-chan int, results
 	for j := range jobs {
 		fmt.Println("worker", id, "started  job", j)
 		rand.Seed(time.Now().UnixNano())
-		k := rand.Intn(300 - 200) + 200
+		k := rand.Intn(300-200) + 200
 		segments := imageGraph.GraphSegmentation(k)
 		fmt.Println("worker", id, "finished job", j)
 		results <- mapVertexToCoordinate(segments)

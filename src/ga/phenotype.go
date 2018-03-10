@@ -4,26 +4,20 @@ import (
 	"../img"
 )
 
-
 type Phenotype struct {
-	MyImage  img.Image
-	Segments [][]img.Coordinate
+	MyImage    img.Image
+	Segments   [][]img.Coordinate
 	SegmentMap map[img.Coordinate]int
 }
 
-func NewChromosome(segments [][]img.Coordinate, myImage img.Image) Phenotype {
+func NewPhenotype(segments [][]img.Coordinate, myImage img.Image) Phenotype {
 	segmentMap := make(map[img.Coordinate]int)
 	for i := range segments {
-		for j := range segments[i]{
+		for j := range segments[i] {
 			segmentMap[segments[i][j]] = i
 		}
 	}
 	return Phenotype{MyImage: myImage, Segments: segments, SegmentMap: segmentMap}
-}
-
-
-func (p Phenotype) ConvertToGenoType() Genotype {
-	return Genotype{}
 }
 
 func (p Phenotype) CalcDeviation() float64 {
@@ -42,7 +36,6 @@ func (p Phenotype) CalcDeviation() float64 {
 		return 0.0
 	}
 	return 1.0 / deviation
-
 
 }
 
@@ -72,7 +65,7 @@ func (p Phenotype) CalcEdgeValue() float64 {
 
 		}
 	}
-	return - edgeValue
+	return -edgeValue
 }
 
 func checkIfItemInSegment(segment []img.Coordinate, coordinate img.Coordinate) bool {

@@ -73,9 +73,9 @@ func ParseImageFile(file io.Reader) (Image, error) {
 	bounds := img.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
 
-	for y := 0; y < height; y++ {
+	for x := 0; x < width; x++ {
 		var row []Pixel
-		for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
 			row = append(row, rgbaToPixel(img.At(x, y).RGBA()))
 		}
 		myImage.Pixels = append(myImage.Pixels, row)
@@ -92,15 +92,15 @@ func SaveImageToFile(myImage Image, filename string) {
 		os.Exit(1)
 	}
 
-	height, width := len(myImage.Pixels), len(myImage.Pixels[0])
+	width, height:= len(myImage.Pixels), len(myImage.Pixels[0])
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			R := myImage.Pixels[y][x].R
-			G := myImage.Pixels[y][x].G
-			B := myImage.Pixels[y][x].B
-			A := myImage.Pixels[y][x].A
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			R := myImage.Pixels[x][y].R
+			G := myImage.Pixels[x][y].G
+			B := myImage.Pixels[x][y].B
+			A := myImage.Pixels[x][y].A
 			img.Set(x, y, color.RGBA{R, G, B, A})
 		}
 	}

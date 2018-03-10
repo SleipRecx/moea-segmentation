@@ -1,29 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"time"
-	"strconv"
-
 	"../ga"
 	"../img"
+	"fmt"
+	"time"
 )
 
 func main() {
 	start := time.Now()
 	path := "./test_images/"
-	folderNumber := "4"
-
+	folderNumber := "3"
 	myImage := img.ReadImageFromFile(path, folderNumber)
-	population := ga.NewPopulation(5, myImage)
-	for i := range population.Individuals {
-		segImage := img.ReconstructImage(population.Individuals[i].Segments, myImage)
-		img.SaveImageToFile(segImage, "output/img" + strconv.Itoa(i))
-	}
+	geno := ga.NewGenotype(myImage)
+	imgWidth, imgHeight := len(myImage.Pixels), len(myImage.Pixels[0])
+	pheno := ga.ConvertToPhenotype(geno, imgWidth, imgHeight, myImage)
+	newImg := img.ReconstructImage(pheno.Segments, myImage)
+	img.SaveImageToFile(newImg, "fuuck")
+	fmt.Println(len(pheno.Segments))
 	fmt.Println("Total runtime:", time.Now().Sub(start))
-	c := population.Individuals[0]
-	img.SaveEdgeDetectionImage(c.Segments, myImage, c.SegmentMap)
-	fmt.Println("Total deviation", c.CalcDeviation())
-	fmt.Println("Total edge value", c.CalcEdgeValue())
 
 }

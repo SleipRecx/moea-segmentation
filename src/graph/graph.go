@@ -1,9 +1,9 @@
 package graph
 
 import (
-	"sort"
-	"math"
 	"../ds"
+	"math"
+	"sort"
 )
 
 type Graph struct {
