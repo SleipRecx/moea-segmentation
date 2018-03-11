@@ -5,18 +5,21 @@ import (
 	"../img"
 	"fmt"
 	"time"
+
 )
 
 func main() {
 	start := time.Now()
-	path := "./test_images/"
-	folderNumber := "3"
-	myImage := img.ReadImageFromFile(path, folderNumber)
-	geno := ga.NewGenotype(myImage)
-	imgWidth, imgHeight := len(myImage.Pixels), len(myImage.Pixels[0])
-	pheno := ga.ConvertToPhenotype(geno, imgWidth, imgHeight, myImage)
-	newImg := img.ReconstructImage(pheno.Segments, myImage)
-	img.SaveImageToFile(newImg, "fuuck")
+	img.Path = "./test_images/"
+	img.FolderNumber = "3"
+	img.MyImage = img.ReadImageFromFile(img.Path, img.FolderNumber)
+	img.ImageWidth, img.ImageHeight = len(img.MyImage.Pixels), len(img.MyImage.Pixels[0])
+	img.MyImageGraph = img.MyImage.ConvertToGraph()
+
+
+	phenotype := ga.NewPhenotype()
+	rImage := img.ReconstructImage(phenotype.Segments)
+	img.SaveImageToFile(rImage, "fuuck")
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
 }

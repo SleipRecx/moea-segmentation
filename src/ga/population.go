@@ -1,5 +1,5 @@
 package ga
-
+/*
 import (
 	"fmt"
 
@@ -60,3 +60,4 @@ func mapVertexToCoordinate(partitions [][]graph.Vertex) [][]img.Coordinate {
 	}
 	return segments
 }
+*/

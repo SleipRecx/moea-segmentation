@@ -2,31 +2,68 @@ package ga
 
 import (
 	"../img"
+	"../ds"
 )
 
 type Phenotype struct {
-	MyImage    img.Image
 	Segments   [][]img.Coordinate
 	SegmentMap map[img.Coordinate]int
+	Chromosome Chromosome
 }
 
-func NewPhenotype(segments [][]img.Coordinate, myImage img.Image) Phenotype {
-	segmentMap := make(map[img.Coordinate]int)
-	for i := range segments {
-		for j := range segments[i] {
-			segmentMap[segments[i][j]] = i
+func NewPhenotype() Phenotype {
+	chromosome := NewChromosome(300)
+	return NewPhenotypeFromChromosome(chromosome)
+}
+
+func NewPhenotypeFromChromosome(chromosome Chromosome) Phenotype {
+	directionMap := make(map[img.Coordinate]img.Direction)
+
+	i := 0
+	for x := 0; x < img.ImageWidth; x++ {
+		for y := 0; y < img.ImageHeight; y++ {
+			cord := img.Coordinate{X: x, Y: y}
+			directionMap[cord] = chromosome.genes[i]
+			i++
 		}
 	}
-	return Phenotype{MyImage: myImage, Segments: segments, SegmentMap: segmentMap}
+	disjointMap := make(map[img.Coordinate]*ds.DisjointSet)
+	for k := range directionMap {
+		set := ds.MakeSet(k)
+		disjointMap[k] = set
+	}
+
+	for cord, direction := range directionMap {
+		nCord := img.CordFromDirection(cord, direction)
+		s1, s2 := ds.FindSet(disjointMap[cord]), ds.FindSet(disjointMap[nCord])
+		ds.Union(s1, s2)
+	}
+
+	segmentMap := make(map[*ds.DisjointSet][]img.Coordinate)
+
+	for k := range directionMap{
+		segmentMap[ds.FindSet(disjointMap[k])] = append(segmentMap[ds.FindSet(disjointMap[k])], k)
+	}
+	segments := make([][]img.Coordinate, 0)
+	for _, value := range segmentMap{
+		segments = append(segments, value)
+	}
+	coordinateToSegmentMap := make(map[img.Coordinate]int)
+	for i := range segments {
+		for j := range segments[i] {
+			coordinateToSegmentMap[segments[i][j]] = i
+		}
+	}
+
+	return Phenotype{Segments:segments, Chromosome:chromosome, SegmentMap:coordinateToSegmentMap}
 }
 
 func (p Phenotype) CalcDeviation() float64 {
 	var deviation float64
 	segments := p.Segments
-	myImage := p.MyImage
 	for i := range segments {
 		if len(segments[i]) > 0 {
-			pixelSegment := coordinatesToPixels(segments[i], myImage)
+			pixelSegment := coordinatesToPixels(segments[i])
 			deviation += calcSegmentDeviation(pixelSegment)
 			//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
 		}
@@ -42,7 +79,6 @@ func (p Phenotype) CalcDeviation() float64 {
 func (p Phenotype) CalcEdgeValue() float64 {
 	var edgeValue float64
 	segments := p.Segments
-	myImage := p.MyImage
 	segmentMap := p.SegmentMap
 	for i := range segments {
 		for _, cord := range segments[i] {
@@ -58,7 +94,7 @@ func (p Phenotype) CalcEdgeValue() float64 {
 			for _, neighbour := range neighbours {
 				if segmentMap[neighbour] == segmentMap[cord] {
 					neighX, neighY := neighbour.X, neighbour.Y
-					edgeValue += myImage.Pixels[x][y].Distance(myImage.Pixels[neighX][neighY])
+					edgeValue += img.MyImage.Pixels[x][y].Distance(img.MyImage.Pixels[neighX][neighY])
 					//fmt.Println("Edge", img.Coordinate{x, y}, img.Coordinate{neighX, neighY})
 				}
 			}
@@ -108,15 +144,15 @@ func calcCentroid(segment []img.Pixel) img.Pixel {
 		A: segment[0].A}
 }
 
-func coordinatesToPixels(segment []img.Coordinate, myImage img.Image) []img.Pixel {
+func coordinatesToPixels(segment []img.Coordinate) []img.Pixel {
 	var pixels []img.Pixel
 	for i := range segment {
 		x, y := segment[i].X, segment[i].Y
 		pixel := img.Pixel{
-			R: myImage.Pixels[x][y].R,
-			G: myImage.Pixels[x][y].G,
-			B: myImage.Pixels[x][y].B,
-			A: myImage.Pixels[x][y].A,
+			R: img.MyImage.Pixels[x][y].R,
+			G: img.MyImage.Pixels[x][y].G,
+			B: img.MyImage.Pixels[x][y].B,
+			A: img.MyImage.Pixels[x][y].A,
 		}
 		pixels = append(pixels, pixel)
 	}

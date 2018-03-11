@@ -83,7 +83,7 @@ func ParseImageFile(file io.Reader) (Image, error) {
 	return myImage, nil
 }
 
-func SaveImageToFile(myImage Image, filename string) {
+func SaveImageToFile(saveImage Image, filename string) {
 	file, err := os.Create(filename + ".png")
 	defer file.Close()
 
@@ -92,15 +92,15 @@ func SaveImageToFile(myImage Image, filename string) {
 		os.Exit(1)
 	}
 
-	width, height:= len(myImage.Pixels), len(myImage.Pixels[0])
+	width, height:= len(saveImage.Pixels), len(saveImage.Pixels[0])
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
-			R := myImage.Pixels[x][y].R
-			G := myImage.Pixels[x][y].G
-			B := myImage.Pixels[x][y].B
-			A := myImage.Pixels[x][y].A
+			R := saveImage.Pixels[x][y].R
+			G := saveImage.Pixels[x][y].G
+			B := saveImage.Pixels[x][y].B
+			A := saveImage.Pixels[x][y].A
 			img.Set(x, y, color.RGBA{R, G, B, A})
 		}
 	}
@@ -108,42 +108,26 @@ func SaveImageToFile(myImage Image, filename string) {
 	encoder.Encode(file, img)
 }
 
-func ReconstructImage(segments [][]Coordinate, myImage Image) Image {
+func ReconstructImage(segments [][]Coordinate) Image {
 	for _, segment := range segments {
 		r := 1.0
 		g := 1.0
 		b := 1.0
 		for _, cord := range segment {
-			r += float64(myImage.Pixels[cord.X][cord.Y].R)
-			g += float64(myImage.Pixels[cord.X][cord.Y].G)
-			b += float64(myImage.Pixels[cord.X][cord.Y].B)
+			r += float64(MyImage.Pixels[cord.X][cord.Y].R)
+			g += float64(MyImage.Pixels[cord.X][cord.Y].G)
+			b += float64(MyImage.Pixels[cord.X][cord.Y].B)
 		}
 		r = r / float64(len(segment))
 		g = g / float64(len(segment))
 		b = b / float64(len(segment))
 		for _, cord := range segment {
-			myImage.Pixels[cord.X][cord.Y].R = uint8(r)
-			myImage.Pixels[cord.X][cord.Y].G = uint8(g)
-			myImage.Pixels[cord.X][cord.Y].B = uint8(b)
+			MyImage.Pixels[cord.X][cord.Y].R = uint8(r)
+			MyImage.Pixels[cord.X][cord.Y].G = uint8(g)
+			MyImage.Pixels[cord.X][cord.Y].B = uint8(b)
 		}
 	}
-	return myImage
-}
-
-func coordinateInSegment(segment []Coordinate, coordinate Coordinate) bool {
-	for _, item := range segment {
-		if item == coordinate {
-			return true
-		}
-	}
-	return false
-}
-
-func inImage(cord Coordinate, myImage Image) bool {
-	if cord.X < len(myImage.Pixels) && cord.Y < len(myImage.Pixels[0]) {
-		return true
-	}
-	return false
+	return MyImage
 }
 
 func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int) {
@@ -175,4 +159,20 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap m
 	f, _ := os.OpenFile("edge-detection.png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
 	png.Encode(f, newImage)
+}
+
+func coordinateInSegment(segment []Coordinate, coordinate Coordinate) bool {
+	for _, item := range segment {
+		if item == coordinate {
+			return true
+		}
+	}
+	return false
+}
+
+func inImage(cord Coordinate, myImage Image) bool {
+	if cord.X < len(myImage.Pixels) && cord.Y < len(myImage.Pixels[0]) {
+		return true
+	}
+	return false
 }

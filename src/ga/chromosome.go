@@ -12,19 +12,17 @@ type Graph = graph.Graph
 type Edge = graph.Edge
 type Vertex = graph.Vertex
 
-type Genotype = []Direction
-
-func NewGenotype(myImage img.Image) Genotype {
-	width, height := len(myImage.Pixels), len(myImage.Pixels[0])
-	return GraphSegmentation(myImage.ConvertToGraph(), 300, width, height)
+type Chromosome struct {
+	genes []img.Direction
 }
 
-func GraphSegmentation(g Graph, k int, imgWidth int, imgHeight int) Genotype {
+func NewChromosome(k int) Chromosome {
+	g := img.MyImageGraph
 	disjointMap := make(map[Vertex]*ds.DisjointSet)
 	segMap := make(map[*ds.DisjointSet][]Vertex)
 	maxInternal := make(map[*ds.DisjointSet]float64)
 	sizeMap := make(map[*ds.DisjointSet]int)
-	genotype := make(Genotype, 0)
+	genes := make([]img.Direction, 0)
 	msf := make([]Edge, 0)
 
 	sort.Slice(g.Edges, func(i, j int) bool {
@@ -35,7 +33,7 @@ func GraphSegmentation(g Graph, k int, imgWidth int, imgHeight int) Genotype {
 		element := ds.MakeSet(vertex)
 		sizeMap[element] = 1
 		disjointMap[vertex] = element
-		genotype = append(genotype, None)
+		genes = append(genes, img.None)
 	}
 
 	for _, edge := range g.Edges {
@@ -58,11 +56,9 @@ func GraphSegmentation(g Graph, k int, imgWidth int, imgHeight int) Genotype {
 	}
 
 	segments := extractMapValues(segMap)
-
 	adjacentMap := make(map[img.Coordinate][]img.Coordinate)
-
 	parentMap := make(map[img.Coordinate]img.Coordinate)
-	directionMap := make(map[img.Coordinate]Direction)
+	directionMap := make(map[img.Coordinate]img.Direction)
 
 	for _, edge := range msf {
 		from, to := edge.U.(img.Coordinate), edge.V.(img.Coordinate)
@@ -88,31 +84,30 @@ func GraphSegmentation(g Graph, k int, imgWidth int, imgHeight int) Genotype {
 	}
 
 	for parent, child := range parentMap {
-		directionMap[parent] = whichDirection(parent, child)
+		directionMap[parent] = img.WhichDirection(parent, child)
 	}
 
-	genotype = make([]Direction, 0)
+	genes = make([]img.Direction, 0)
 	myCords := make([]img.Coordinate, 0)
 
-	for x := 0; x < imgWidth; x++ {
-		for y := 0; y < imgHeight; y++ {
+	for x := 0; x < img.ImageWidth; x++ {
+		for y := 0; y < img.ImageHeight; y++ {
 			cord := img.Coordinate{X: x, Y: y}
-			genotype = append(genotype, directionMap[cord])
+			genes = append(genes, directionMap[cord])
 			myCords = append(myCords, cord)
 		}
 	}
-	return genotype
+	return Chromosome{genes: genes}
 }
 
-
-func ConvertToPhenotype(genotype Genotype, imgWidth int, imgHeight int, myImage img.Image) Phenotype {
-	directionMap := make(map[img.Coordinate]Direction)
+func (c *Chromosome) ConvertToPhenotype() Phenotype {
+	directionMap := make(map[img.Coordinate]img.Direction)
 
 	i := 0
-	for x := 0; x < imgWidth; x++ {
-		for y := 0; y < imgHeight; y++ {
+	for x := 0; x < img.ImageWidth; x++ {
+		for y := 0; y < img.ImageHeight; y++ {
 			cord := img.Coordinate{X: x, Y: y}
-			directionMap[cord] = genotype[i]
+			directionMap[cord] = c.genes[i]
 			i++
 		}
 	}
@@ -123,7 +118,7 @@ func ConvertToPhenotype(genotype Genotype, imgWidth int, imgHeight int, myImage 
 	}
 
 	for cord, direction := range directionMap {
-		nCord := cordFromDirection(cord, direction, imgWidth, imgHeight)
+		nCord := img.CordFromDirection(cord, direction)
 		s1, s2 := ds.FindSet(disjointMap[cord]), ds.FindSet(disjointMap[nCord])
 		ds.Union(s1, s2)
 	}
@@ -137,68 +132,7 @@ func ConvertToPhenotype(genotype Genotype, imgWidth int, imgHeight int, myImage 
 	for _, value := range segmentMap{
 		segments = append(segments, value)
 	}
-	return NewPhenotype(segments, myImage)
-}
-
-/*
-func nodeAndDirectionToNode(node Node, direction Direction) Node {
-	var n Node
-	switch direction {
-	case Up:
-		n = Node{node.X, node.Y - 1}
-	case Down:
-		n = Node{node.X, node.Y + 1}
-	case Right:
-		n = Node{node.X + 1, node.Y}
-	case Left:
-		n = Node{node.X - 1, node.Y}
-	default:
-		return Node{node.X, node.Y}
-	}
-	if n.isInRange() {
-		return n
-	} else {
-		return node
-	}
-}
- */
-
-func cordFromDirection(cord img.Coordinate, direction Direction, imgWidth int, imgHeight int) img.Coordinate {
-	newCord := img.Coordinate{X: cord.X, Y: cord.Y}
-	switch direction {
-	case Up:
-		newCord.Y -= 1
-	case Down:
-		newCord.Y += 1
-	case Right:
-		newCord.X += 1
-	case Left:
-		newCord.X -= 1
-	}
-	if newCord.X >= imgWidth || newCord.Y >= imgHeight{
-		return cord
-	}
-	if newCord.X < 0 || newCord.Y < 0 {
-		return cord
-	}
-	return newCord
-}
-
-func whichDirection(c1, c2 img.Coordinate) Direction {
-	dx, dy := c2.X-c1.X, c2.Y-c1.Y
-	if dx >= 1 {
-		return Right
-	}
-	if dx <= -1 {
-		return Left
-	}
-	if dy >= 1 {
-		return Down
-	}
-	if dy <= -1 {
-		return Up
-	}
-	return None
+	return Phenotype{}
 }
 
 func extractMapValues(hashMap map[*ds.DisjointSet][]Vertex) [][]img.Coordinate {
