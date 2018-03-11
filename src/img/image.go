@@ -130,35 +130,42 @@ func ReconstructImage(segments [][]Coordinate) Image {
 	return MyImage
 }
 
-func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int) {
-	height := len(myImage.Pixels)
-	width := len(myImage.Pixels[0])
-	newImage := image.NewRGBA(image.Rect(0, 0, width, height))
+func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int, filename string) {
+	width := len(myImage.Pixels)
+	height := len(myImage.Pixels[0])
+	newImageBlackAndWhite := image.NewRGBA(image.Rect(0, 0, width, height))
+	newImageGreen := image.NewRGBA(image.Rect(0, 0, width, height))
 	for i := range segments {
 		for _, cord := range segments[i] {
 			x, y := cord.X, cord.Y
 			right := Coordinate{x + 1, y}
-			left := Coordinate{x - 1, y}
-			up := Coordinate{x, y + 1}
 			down := Coordinate{x, y - 1}
 
 			neighbours := make([]Coordinate, 0)
-			neighbours = append(neighbours, right, left, up, down)
+			neighbours = append(neighbours, right, down)
 
 			for _, neighbour := range neighbours {
 				if inImage(neighbour, myImage) {
-					newImage.Set(y, x, color.RGBA{255, 255, 255, 255})
+					i := myImage.Pixels[x][y]
+					r, g, b, a := i.R, i.G, i.B, i.A
+					newImageBlackAndWhite.Set(x, y, color.RGBA{255, 255, 255, 255})
+					newImageGreen.Set(x, y, color.RGBA{r, g, b, a})
 					if segmentMap[neighbour] != segmentMap[cord] {
-						newImage.Set(y, x, color.RGBA{0, 0, 0, 255})
+						newImageBlackAndWhite.Set(x, y, color.RGBA{0, 0, 0, 255})
+						newImageGreen.Set(x, y, color.RGBA{0, 255, 0, 255})
 						break
 					}
 				}
 			}
 		}
 	}
-	f, _ := os.OpenFile("edge-detection.png", os.O_WRONLY|os.O_CREATE, 0600)
-	defer f.Close()
-	png.Encode(f, newImage)
+	fBlack, _ := os.OpenFile("output/edge/"+filename+ "-black(type3).png", os.O_WRONLY|os.O_CREATE, 0600)
+	defer fBlack.Close()
+	png.Encode(fBlack, newImageBlackAndWhite)
+
+	//fGreen, _ := os.OpenFile("output/edge/"+filename+ "-green(type1).png", os.O_WRONLY|os.O_CREATE, 0600)
+	//defer fGreen.Close()
+	//png.Encode(fGreen, newImageGreen)
 }
 
 func coordinateInSegment(segment []Coordinate, coordinate Coordinate) bool {
