@@ -68,7 +68,6 @@ func (p Phenotype) Mutate()  Phenotype{
 	return NewPhenotypeFromChromosome(p.Chromosome)
 }
 
-
 func (p Phenotype) CalcDeviation() float64 {
 	var deviation float64
 	segments := p.Segments
