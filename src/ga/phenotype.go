@@ -3,6 +3,7 @@ package ga
 import (
 	"../img"
 	"../ds"
+	"math/rand"
 )
 
 type Phenotype struct {
@@ -11,8 +12,8 @@ type Phenotype struct {
 	Chromosome Chromosome
 }
 
-func NewPhenotype() Phenotype {
-	chromosome := NewChromosome(300)
+func NewPhenotype(k int) Phenotype {
+	chromosome := NewChromosome(k)
 	return NewPhenotypeFromChromosome(chromosome)
 }
 
@@ -57,6 +58,16 @@ func NewPhenotypeFromChromosome(chromosome Chromosome) Phenotype {
 
 	return Phenotype{Segments:segments, Chromosome:chromosome, SegmentMap:coordinateToSegmentMap}
 }
+
+func (p Phenotype) Mutate()  Phenotype{
+	size := len(p.Chromosome.genes) / 10
+	toMutate := rand.Perm(len(p.Chromosome.genes))[:size]
+	for _,i := range toMutate {
+		p.Chromosome.genes[i] = img.DirectionFactory(rand.Intn(4))
+	}
+	return NewPhenotypeFromChromosome(p.Chromosome)
+}
+
 
 func (p Phenotype) CalcDeviation() float64 {
 	var deviation float64

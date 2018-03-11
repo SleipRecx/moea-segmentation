@@ -16,10 +16,14 @@ func main() {
 	img.ImageWidth, img.ImageHeight = len(img.MyImage.Pixels), len(img.MyImage.Pixels[0])
 	img.MyImageGraph = img.MyImage.ConvertToGraph()
 
+	population := ga.NewPopulation(1)
+	myImg := img.ReconstructImage(population.Individuals[0].Segments)
+	img.SaveImageToFile(myImg, "Before")
+	a := population.Individuals[0].Mutate()
+	myImg2 := img.ReconstructImage(a.Segments)
+	img.SaveImageToFile(myImg2, "After")
 
-	phenotype := ga.NewPhenotype()
-	rImage := img.ReconstructImage(phenotype.Segments)
-	img.SaveImageToFile(rImage, "fuuck")
+
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
 }
