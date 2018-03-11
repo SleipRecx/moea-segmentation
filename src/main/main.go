@@ -17,7 +17,6 @@ func main() {
 	pheno := ga.ConvertToPhenotype(geno, imgWidth, imgHeight, myImage)
 	newImg := img.ReconstructImage(pheno.Segments, myImage)
 	img.SaveImageToFile(newImg, "fuuck")
-	fmt.Println(len(pheno.Segments))
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
 }
