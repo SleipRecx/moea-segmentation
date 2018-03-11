@@ -130,7 +130,7 @@ func ReconstructImage(segments [][]Coordinate) Image {
 	return MyImage
 }
 
-func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int) {
+func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int, fileName string) {
 	width := len(myImage.Pixels)
 	height := len(myImage.Pixels[0])
 	newImage := image.NewRGBA(image.Rect(0, 0, width, height))
@@ -154,7 +154,7 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap m
 			}
 		}
 	}
-	f, _ := os.OpenFile("edge-detection.png", os.O_WRONLY|os.O_CREATE, 0600)
+	f, _ := os.OpenFile("output/edge/"+ fileName + ".png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
 	png.Encode(f, newImage)
 }
