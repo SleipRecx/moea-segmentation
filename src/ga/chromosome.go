@@ -100,41 +100,6 @@ func NewChromosome(k int) Chromosome {
 	return Chromosome{genes: genes}
 }
 
-func (c *Chromosome) ConvertToPhenotype() Phenotype {
-	directionMap := make(map[img.Coordinate]img.Direction)
-
-	i := 0
-	for x := 0; x < img.ImageWidth; x++ {
-		for y := 0; y < img.ImageHeight; y++ {
-			cord := img.Coordinate{X: x, Y: y}
-			directionMap[cord] = c.genes[i]
-			i++
-		}
-	}
-	disjointMap := make(map[img.Coordinate]*ds.DisjointSet)
-	for k := range directionMap {
-		set := ds.MakeSet(k)
-		disjointMap[k] = set
-	}
-
-	for cord, direction := range directionMap {
-		nCord := img.CordFromDirection(cord, direction)
-		s1, s2 := ds.FindSet(disjointMap[cord]), ds.FindSet(disjointMap[nCord])
-		ds.Union(s1, s2)
-	}
-
-	segmentMap := make(map[*ds.DisjointSet][]img.Coordinate)
-
-	for k := range directionMap{
-		segmentMap[ds.FindSet(disjointMap[k])] = append(segmentMap[ds.FindSet(disjointMap[k])], k)
-	}
-	segments := make([][]img.Coordinate, 0)
-	for _, value := range segmentMap{
-		segments = append(segments, value)
-	}
-	return Phenotype{}
-}
-
 func extractMapValues(hashMap map[*ds.DisjointSet][]Vertex) [][]img.Coordinate {
 	r := make([][]img.Coordinate, 0)
 	for _, v := range hashMap {
