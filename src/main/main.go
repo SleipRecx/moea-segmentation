@@ -1,10 +1,11 @@
 package main
 
 import (
-	"../ga"
 	"../img"
+	"../tester"
 	"fmt"
 	"time"
+
 )
 
 func main() {
@@ -15,17 +16,8 @@ func main() {
 	img.ImageWidth, img.ImageHeight = len(img.MyImage.Pixels), len(img.MyImage.Pixels[0])
 	img.MyImageGraph = img.MyImage.ConvertToGraph()
 
+	tester.CalculatePRI(ScriptPath, TestPath + img.FolderNumber, OutPath)
 
-
-
-
-
-	population := ga.NewPopulation(1)
-	phenotype := population.Individuals[0]
-
-
-	img.SaveEdgeDetectionImage(phenotype.Segments, img.MyImage, phenotype.SegmentMap, "yo")
-	//tester.CalculatePRI("/Users/markusandresen/Documents/moea/src/tester/run.py", "/Users/markusandresen/Documents/moea/test_images/1/", "/Users/markusandresen/Documents/moea/output/")
 	fmt.Println("Total runtime:", time.Now().Sub(start))
 
 }

@@ -159,13 +159,13 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap m
 			}
 		}
 	}
-	fBlack, _ := os.OpenFile("output/edge/"+filename+ "-black(type3).png", os.O_WRONLY|os.O_CREATE, 0600)
+	fBlack, _ := os.OpenFile("output/edge/"+filename+ ".png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer fBlack.Close()
 	png.Encode(fBlack, newImageBlackAndWhite)
 
-	//fGreen, _ := os.OpenFile("output/edge/"+filename+ "-green(type1).png", os.O_WRONLY|os.O_CREATE, 0600)
-	//defer fGreen.Close()
-	//png.Encode(fGreen, newImageGreen)
+	fGreen, _ := os.OpenFile("output/edge/green(type1)/" + filename + ".png", os.O_WRONLY|os.O_CREATE, 0600)
+	defer fGreen.Close()
+	png.Encode(fGreen, newImageGreen)
 }
 
 func coordinateInSegment(segment []Coordinate, coordinate Coordinate) bool {
