@@ -6,17 +6,26 @@ import (
 	"../img"
 	"math"
 	"sort"
+	"math/rand"
 )
 
 type Graph = graph.Graph
 type Edge = graph.Edge
 type Vertex = graph.Vertex
 
-type Chromosome struct {
+type Genotype struct {
 	genes []img.Direction
 }
 
-func NewChromosome(k int) Chromosome {
+func (g *Genotype) Mutate() {
+	size := len(g.genes) / 4
+	toMutate := rand.Perm(len(g.genes))[:size]
+	for index := range toMutate {
+		g.genes[index] = img.DirectionFactory(rand.Intn(4))
+	}
+}
+
+func NewGenotype(k int) Genotype {
 	g := img.MyImageGraph
 	disjointMap := make(map[Vertex]*ds.DisjointSet)
 	segMap := make(map[*ds.DisjointSet][]Vertex)
@@ -97,7 +106,7 @@ func NewChromosome(k int) Chromosome {
 			myCords = append(myCords, cord)
 		}
 	}
-	return Chromosome{genes: genes}
+	return Genotype{genes: genes}
 }
 
 func extractMapValues(hashMap map[*ds.DisjointSet][]Vertex) [][]img.Coordinate {
