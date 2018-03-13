@@ -1,26 +1,24 @@
 package ga
 
 import (
-	"math/rand"
+	"../graph"
 )
 
 type Population struct {
+	Generation int
 	Individuals []Individual
+	Fronts [][]*Individual
 	Size        int
 }
 
-func NewPopulation(size int) Population {
-	individuals := make([]Individual, 0)
-	for i := 0; i <= size; i++ {
-		k := rand.Intn(6000 - 200) + 200
-		k = 1
-		individual := NewIndividual(k)
-
-		individuals = append(individuals, individual)
+func (population Population) Init(size int, graph graph.Graph) {
+	population.Size = size
+	for j := 0; j < size; j++ {
+		individual := Individual{}
+		individual.Init(graph)
+		population.Individuals = append(population.Individuals, individual)
 	}
-	return Population{Individuals: individuals, Size: size}
 }
-
 
 /*
 func (p *Population) UniformCrossover(parent1, parent2 *Individual) (Individual, Individual) {

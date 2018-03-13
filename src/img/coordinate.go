@@ -1,6 +1,6 @@
 package img
 
-import "./"
+import "../constants"
 
 type Coordinate struct {
 	X, Y int
@@ -18,7 +18,7 @@ func CordFromDirection(cord Coordinate, direction Direction) Coordinate {
 	case Left:
 		newCord.X -= 1
 	}
-	if newCord.X >= ImageWidth|| newCord.Y >= ImageHeight{
+	if newCord.X >= constants.ImageWidth|| newCord.Y >= constants.ImageHeight{
 		return cord
 	}
 	if newCord.X < 0 || newCord.Y < 0 {

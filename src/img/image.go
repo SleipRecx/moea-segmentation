@@ -1,7 +1,7 @@
 package img
 
 import (
-	"../graph"
+	//"../graph"
 	"fmt"
 	"image"
 	"image/color"
@@ -11,36 +11,40 @@ import (
 	"os"
 	"github.com/disintegration/imaging"
 	"errors"
+	"../constants"
+
 )
 
 type Image struct {
 	Pixels [][]Pixel
 }
 
-func (i *Image) ConvertToGraph() graph.Graph {
-	var edges []graph.Edge
-	var vertices []graph.Vertex
-	pixels := i.Pixels
-	for i := range pixels {
-		for j := range pixels[i] {
-			fromCord := Coordinate{X: i, Y: j}
-			vertices = append(vertices, fromCord)
-			if j+1 < len(pixels[i]) {
-				toCord := Coordinate{X: i, Y: j + 1}
+var MyImage Image
 
-				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
-				edges = append(edges, edge)
-			}
-			if i+1 < len(pixels) {
-				toCord := Coordinate{X: i + 1, Y: j}
-				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
-				edges = append(edges, edge)
-			}
-		}
-	}
-	return graph.Graph{Edges: edges, Vertices: vertices}
-}
-
+//func (i *Image) ConvertToGraph() graph.Graph {
+//	var edges []graph.Edge
+//	var vertices []graph.Vertex
+//	pixels := i.Pixels
+//	for i := range pixels {
+//		for j := range pixels[i] {
+//			fromCord := Coordinate{X: i, Y: j}
+//			vertices = append(vertices, fromCord)
+//			if j+1 < len(pixels[i]) {
+//				toCord := Coordinate{X: i, Y: j + 1}
+//
+//				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i][j+1])}
+//				edges = append(edges, edge)
+//			}
+//			if i+1 < len(pixels) {
+//				toCord := Coordinate{X: i + 1, Y: j}
+//				edge := graph.Edge{U: fromCord, V: toCord, Weight: ColorDistance(pixels[i][j], pixels[i+1][j])}
+//				edges = append(edges, edge)
+//			}
+//		}
+//	}
+//	return graph.Graph{Edges: edges, Vertices: vertices}
+//}
+//
 func ReadImageFromFile(path string, folderNumber string) Image {
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 
@@ -131,38 +135,42 @@ func ReconstructImage(segments [][]Coordinate) Image {
 	return MyImage
 }
 
-func SaveEdgeDetectionImage(segments [][]Coordinate, segmentMap map[Coordinate]int, filename string) {
-	newImageBlackAndWhite := image.NewRGBA(image.Rect(0, 0, ImageWidth, ImageHeight))
-	newImageGreen := image.NewRGBA(image.Rect(0, 0, ImageWidth, ImageHeight))
-	for i := range segments {
-		for _, cord := range segments[i] {
-			x, y := cord.X, cord.Y
-			right := Coordinate{x + 1, y}
-			down := Coordinate{x, y - 1}
-
-			neighbours := make([]Coordinate, 0)
-			neighbours = append(neighbours, right, down)
-
-			for _, neighbour := range neighbours {
-				if inImage(neighbour, MyImage) {
-					i := MyImage.Pixels[x][y]
-					r, g, b, a := i.R, i.G, i.B, i.A
-					newImageBlackAndWhite.Set(x, y, color.RGBA{255, 255, 255, 255})
-					newImageGreen.Set(x, y, color.RGBA{r, g, b, a})
-					if segmentMap[neighbour] != segmentMap[cord] {
-						newImageBlackAndWhite.Set(x, y, color.RGBA{0, 0, 0, 255})
-						newImageGreen.Set(x, y, color.RGBA{0, 255, 0, 255})
-						break
-					}
+func SaveEdgeDetectionImage(segmentMatrix [][]int, filename string) {
+	newImageBlackAndWhite := image.NewRGBA(image.Rect(0, 0, constants.ImageWidth, constants.ImageHeight))
+	newImageGreen := image.NewRGBA(image.Rect(0, 0, constants.ImageWidth, constants.ImageHeight))
+	for x := range segmentMatrix {
+		for y := range segmentMatrix[x] {
+			cord := Coordinate{x, y}
+			right, errorRight, down, errorDown := GetTwoNeighbors(cord)
+			border := false
+			if errorRight == nil {
+				if segmentMatrix[x][y] != segmentMatrix[right.X][right.Y] {
+					border = true
 				}
+			}
+			if errorDown == nil {
+				if segmentMatrix[x][y] != segmentMatrix[down.X][down.Y] {
+					border = true
+				}
+			}
+			if border {
+				newImageBlackAndWhite.Set(cord.X, cord.Y, color.RGBA{0, 0, 0, 255})
+				newImageGreen.Set(cord.X, cord.Y, color.RGBA{0, 255, 0, 255})
+
+			} else {
+				i := MyImage.Pixels[x][y]
+				r, g, b, a := i.R, i.G, i.B, i.A
+				newImageBlackAndWhite.Set(cord.X, cord.Y, color.RGBA{255, 255, 255, 255})
+
+				newImageGreen.Set(cord.X, cord.Y, color.RGBA{r, g, b, a})
 			}
 		}
 	}
-	fBlack, _ := os.OpenFile("output/edge/"+filename+ ".png", os.O_WRONLY|os.O_CREATE, 0600)
+	fBlack, _ := os.OpenFile("output/edge/"+ filename+ ".png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer fBlack.Close()
 	png.Encode(fBlack, newImageBlackAndWhite)
 
-	fGreen, _ := os.OpenFile("output/green/" + filename + ".png", os.O_WRONLY|os.O_CREATE, 0600)
+	fGreen, _ := os.OpenFile("output/edge/green/" + filename + ".png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer fGreen.Close()
 	png.Encode(fGreen, newImageGreen)
 }
@@ -172,12 +180,12 @@ func GetTwoNeighbors(cord Coordinate) (Coordinate, error, Coordinate, error) {
 	var rightError error = nil
 	var downError error = nil
 
-	right, down := Coordinate{x + 1, y}, Coordinate{x, y - 1}
-	if right.X >= ImageWidth {
+	right, down := Coordinate{x + 1, y}, Coordinate{x, y + 1}
+	if right.X >= constants.ImageWidth {
 		rightError = errors.New("Right out of bounds")
 	}
 
-	if down.Y >= ImageHeight {
+	if down.Y >= constants.ImageHeight {
 		downError = errors.New("Down out of bounds")
 	}
 
@@ -210,8 +218,31 @@ func GetFourNeighbors(cord Coordinate) []Coordinate {
 }
 
 func (cord Coordinate) inImage() bool {
-	if cord.X >= 0 && cord.X < ImageWidth && cord.Y >= 0 && cord.Y < ImageHeight {
+	if cord.X >= 0 && cord.X < constants.ImageWidth && cord.Y >= 0 && cord.Y < constants.ImageHeight {
 		return true
 	}
 	return false
+}
+
+func CalcCentroid(segment []Coordinate) Pixel {
+	r, g, b := 0, 0, 0
+	for _, cord := range segment {
+		x, y := cord.X, cord.Y
+		pixel := MyImage.Pixels[x][y]
+		r += int(pixel.R)
+		g += int(pixel.G)
+		b += int(pixel.B)
+	}
+	numPixels := len(segment)
+	centroid := Pixel{
+		R: uint8(r / numPixels),
+		G: uint8(g / numPixels),
+		B: uint8(b / numPixels),
+		A: 255}
+
+	return Pixel{
+		R: centroid.R,
+		G: centroid.G,
+		B: centroid.B,
+		A: 255}
 }

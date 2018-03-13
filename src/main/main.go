@@ -1,15 +1,15 @@
 package main
 
 import (
-	"../img"
 	"fmt"
 	"time"
-
 	"io/ioutil"
-	"strings"
 	"../ga"
-	"strconv"
 	"../tester"
+	"../img"
+	"../graph"
+	"../constants"
+	"strings"
 )
 
 func main() {
@@ -17,21 +17,35 @@ func main() {
 
 	start := time.Now()
 	//rand.Seed(time.Now().UnixNano())
-	img.Path = "./test_images/"
-	img.FolderNumber = "flower"
-	img.MyImage = img.ReadImageFromFile(img.Path, img.FolderNumber)
-	img.ImageWidth, img.ImageHeight = len(img.MyImage.Pixels), len(img.MyImage.Pixels[0])
-	img.MyImageGraph = img.MyImage.ConvertToGraph()
-	pop := ga.NewPopulation(4)
-	for i, ind := range pop.Individuals {
-		img.SaveEdgeDetectionImage(ind.Phenotype.Segments, ind.Phenotype.SegmentMap, "you" + strconv.Itoa(i))
+	constants.Path = "./test_images/"
+	constants.FolderNumber = "flower"
+	constants.UseNSGA2 = false
+	constants.DeviationWeight = -2
+	constants.EdgeWeight = 0
+	constants.NGenerations = 10
+	constants.NPopulation = 20
+	constants.CrossoverRate = 0.2
+	constants.MutationRate = 1.0
+	constants.NElites = 1
+	img.MyImage = img.ReadImageFromFile(constants.Path, constants.FolderNumber)
+	constants.ImageWidth, constants.ImageHeight = len(img.MyImage.Pixels), len(img.MyImage.Pixels[0])
+	myImageGraph := graph.Graph{}
+	myImageGraph.Init()
+
+	population := ga.Population{}
+	population.Init(constants.NPopulation, myImageGraph)
+
+	if constants.UseNSGA2 {
+		population.NSGA2Run()
+	} else {
+		population.WeightedSumRun()
 	}
 	
 
 	file, _ := ioutil.ReadFile("src/main/path.txt")
 	split := strings.Split(string(file), "\n")
 	scriptPath := split[0]
-	testPath := split[1] + img.FolderNumber
+	testPath := split[1] + constants.FolderNumber
 	outPath := split[2]
 
 

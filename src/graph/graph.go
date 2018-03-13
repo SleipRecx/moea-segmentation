@@ -1,10 +1,12 @@
 package graph
 
 import (
-	"../ds"
 	"math"
 	"sort"
 	"../img"
+	"../constants"
+	"../ds"
+	"fmt"
 )
 
 type Graph struct {
@@ -12,26 +14,28 @@ type Graph struct {
 	Coordinates []img.Coordinate
 }
 
-func (g *Graph) NewGraph() {
-	coordinates := g.Coordinates
-	edges := g.Edges
-	cordI := 0
+func (g *Graph) Init() {
+	coordinates := make([]img.Coordinate, constants.ImageWidth*constants.ImageHeight)
+	edges := make([]Edge, (constants.ImageWidth-1)*constants.ImageHeight+(constants.ImageHeight-1)*constants.ImageWidth)
+	nodeI := 0
 	edgeI := 0
 
-	for x := 0; x < img.ImageWidth; x++ {
-		for y := 0; y < img.ImageWidth; y++ {
+	for x := 0; x < constants.ImageWidth; x++ {
+		for y := 0; y < constants.ImageHeight; y++ {
 			cord := img.Coordinate{x, y}
-			coordinates[cordI] = cord
-			cordI++
-			right, rightError, down, downError := img.GetTwoNeighbors(cord)
-			if rightError == nil {
+			coordinates[nodeI] = cord
+			nodeI += 1
+			right, rightErr, down, downErr := img.GetTwoNeighbors(cord)
+			if rightErr == nil {
 				edges[edgeI] = Edge{cord, right, edgeWeight(cord, right)}
-				edgeI++
+				edgeI += 1
+
 			}
-			if downError == nil {
+			if downErr == nil {
 				edges[edgeI] = Edge{cord, down, edgeWeight(cord, down)}
-				edgeI++
+				edgeI += 1
 			}
+
 		}
 	}
 	sort.Sort(ByWeight(edges))
@@ -54,15 +58,15 @@ func (g *Graph) GraphSegmentation(k int) ([]img.Direction, [][]img.Direction) {
 	}
 
 	for _, edge := range edges {
-		from, to := ds.FindSet(disjointMap[edge.U]), ds.FindSet(disjointMap[edge.V])
-		if from != to {
-			minInt := math.Min(maxInternal[from]+float64(k/sizeMap[from]), maxInternal[to]+float64(k/sizeMap[to]))
+		u, v := ds.FindSet(disjointMap[edge.U]), ds.FindSet(disjointMap[edge.V])
+		if u != v {
+			minInt := math.Min(maxInternal[u]+float64(k/sizeMap[u]), maxInternal[v]+float64(k/sizeMap[v]))
 			if edge.Weight <= minInt {
 				tree = append(tree, edge)
-				size1, size2 := sizeMap[from], sizeMap[to]
+				size1, size2 := sizeMap[u], sizeMap[v]
 				ds.Union(disjointMap[edge.U], disjointMap[edge.V])
 				maxInternal[ds.FindSet(disjointMap[edge.U])] = edge.Weight
-				sizeMap[from] = size1 + size2
+				sizeMap[u] = size1 + size2
 			}
 		}
 	}
@@ -112,16 +116,17 @@ func (g *Graph) GraphSegmentation(k int) ([]img.Direction, [][]img.Direction) {
 			}
 		}
 	}
-	for cord, parent, := range parentMap {
+	fmt.Println("Test")
+	for cord, parent := range parentMap {
 		directions[cord] = img.WhichDirection(cord, parent)
 	}
 	chromosome := make([]img.Direction, len(directions))
-	directionMatrix := make([][]img.Direction, img.ImageWidth)
+	directionMatrix := make([][]img.Direction, constants.ImageWidth)
 
 	i := 0
-	for x := 0; x < img.ImageWidth; x++ {
-		directionMatrix[x] = make([]img.Direction, img.ImageHeight)
-		for y := 0; y < img.ImageHeight; i++ {
+	for x := 0; x < constants.ImageWidth; x++ {
+		directionMatrix[x] = make([]img.Direction, constants.ImageHeight)
+		for y := 0; y < constants.ImageHeight; i++ {
 			chromosome[i] = directions[img.Coordinate{x, y}]
 			directionMatrix[x][y] = directions[img.Coordinate{x, y}]
 			i++
@@ -130,12 +135,12 @@ func (g *Graph) GraphSegmentation(k int) ([]img.Direction, [][]img.Direction) {
 	return chromosome, directionMatrix
 }
 
-func segmentToDirection(segmentMatrix [][]int, segmentMap map[int][]img.Coordinate) [][]img.Direction {
-	directionMatrix := make([][]img.Direction, img.ImageWidth)
+func SegmentToDirection(segmentMatrix [][]int, segmentMap map[int][]img.Coordinate) [][]img.Direction {
+	directionMatrix := make([][]img.Direction, constants.ImageWidth)
 
-	for x := 0; x < img.ImageWidth; x++ {
-		directionMatrix[x] = make([]img.Direction, img.ImageHeight)
-		for y := 0; y < img.ImageHeight; y++ {
+	for x := 0; x < constants.ImageWidth; x++ {
+		directionMatrix[x] = make([]img.Direction, constants.ImageHeight)
+		for y := 0; y < constants.ImageHeight; y++ {
 			directionMatrix[x][y] = img.None
 		}
 	}
@@ -166,8 +171,8 @@ func segmentToDirection(segmentMatrix [][]int, segmentMap map[int][]img.Coordina
 	return directionMatrix
 }
 
-func directionToSegment(directionMatrix [][]img.Direction) ([][]int, map[int][]img.Coordinate) {
-	segmentMatrix := make([][]int, img.ImageWidth)
+func DirectionToSegment(directionMatrix [][]img.Direction) ([][]int, map[int][]img.Coordinate) {
+	segmentMatrix := make([][]int, constants.ImageWidth)
 
 	dsSets := make(map[img.Coordinate]*ds.DisjointSet)
 	for x := range segmentMatrix {
@@ -207,7 +212,7 @@ func directionToSegment(directionMatrix [][]img.Direction) ([][]int, map[int][]i
 }
 
 func edgeWeight(u, v img.Coordinate) float64 {
-	return img.ColorDistance(img.MyImage.Pixels[u.X][u.Y], img.MyImage.Pixels[v.X][v.Y])
+	return img.MyImage.Pixels[u.X][u.Y].Distance(img.MyImage.Pixels[v.X][v.Y])
 }
 
 //func (g *Graph) MinimalSpanningTree() []Edge {

@@ -1,5 +1,7 @@
 package ds
 
+import "fmt"
+
 type DisjointSet struct {
 	Parent *DisjointSet
 	Rank   int
@@ -15,6 +17,7 @@ func MakeSet(value interface{}) *DisjointSet {
 }
 
 func FindSet(e *DisjointSet) *DisjointSet {
+	fmt.Println("e", e, "e par", e.Parent)
 	if e == e.Parent {
 		return e
 	}
