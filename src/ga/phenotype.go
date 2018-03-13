@@ -3,28 +3,21 @@ package ga
 import (
 	"../img"
 	"../ds"
-	"math/rand"
 )
 
 type Phenotype struct {
 	Segments   [][]img.Coordinate
 	SegmentMap map[img.Coordinate]int
-	Chromosome Chromosome
 }
 
-func NewPhenotype(k int) Phenotype {
-	chromosome := NewChromosome(k)
-	return NewPhenotypeFromChromosome(chromosome)
-}
-
-func NewPhenotypeFromChromosome(chromosome Chromosome) Phenotype {
+func NewPhenotype(genotype Genotype) Phenotype {
 	directionMap := make(map[img.Coordinate]img.Direction)
 
 	i := 0
 	for x := 0; x < img.ImageWidth; x++ {
 		for y := 0; y < img.ImageHeight; y++ {
 			cord := img.Coordinate{X: x, Y: y}
-			directionMap[cord] = chromosome.genes[i]
+			directionMap[cord] = genotype.genes[i]
 			i++
 		}
 	}
@@ -56,16 +49,7 @@ func NewPhenotypeFromChromosome(chromosome Chromosome) Phenotype {
 		}
 	}
 
-	return Phenotype{Segments:segments, Chromosome:chromosome, SegmentMap:coordinateToSegmentMap}
-}
-
-func (p Phenotype) Mutate()  Phenotype{
-	size := len(p.Chromosome.genes) / 10
-	toMutate := rand.Perm(len(p.Chromosome.genes))[:size]
-	for _,i := range toMutate {
-		p.Chromosome.genes[i] = img.DirectionFactory(rand.Intn(4))
-	}
-	return NewPhenotypeFromChromosome(p.Chromosome)
+	return Phenotype{Segments:segments, SegmentMap: coordinateToSegmentMap}
 }
 
 func (p Phenotype) CalcDeviation() float64 {
@@ -78,7 +62,6 @@ func (p Phenotype) CalcDeviation() float64 {
 			//fmt.Println("Segment number: ", i, " Deviation: ", 1/deviation)
 		}
 	}
-
 	if deviation == 0.0 {
 		return 0.0
 	}
@@ -88,10 +71,8 @@ func (p Phenotype) CalcDeviation() float64 {
 
 func (p Phenotype) CalcEdgeValue() float64 {
 	var edgeValue float64
-	segments := p.Segments
-	segmentMap := p.SegmentMap
-	for i := range segments {
-		for _, cord := range segments[i] {
+	for i := range p.Segments {
+		for _, cord := range p.Segments[i] {
 			x, y := cord.X, cord.Y
 			right := img.Coordinate{X: x + 1, Y: y}
 			left := img.Coordinate{X: x - 1, Y: y}
@@ -102,11 +83,15 @@ func (p Phenotype) CalcEdgeValue() float64 {
 			neighbours = append(neighbours, right, left, up, down)
 
 			for _, neighbour := range neighbours {
-				if segmentMap[neighbour] == segmentMap[cord] {
-					neighX, neighY := neighbour.X, neighbour.Y
-					edgeValue += img.MyImage.Pixels[x][y].Distance(img.MyImage.Pixels[neighX][neighY])
-					//fmt.Println("Edge", img.Coordinate{x, y}, img.Coordinate{neighX, neighY})
+				if neighbour.X < img.ImageWidth && neighbour.X >= 0{
+					if neighbour.Y < img.ImageHeight && neighbour.Y >= 0{
+						if p.SegmentMap[neighbour] != p.SegmentMap[cord] {
+							neighX, neighY := neighbour.X, neighbour.Y
+							edgeValue += img.MyImage.Pixels[x][y].Distance(img.MyImage.Pixels[neighX][neighY])
+						}
+					}
 				}
+
 			}
 
 		}
@@ -131,41 +116,41 @@ func calcSegmentDeviation(segment []img.Pixel) float64 {
 		deviation += pixel.Distance(centroid)
 	}
 	return deviation
+	// return deviation / float64(len(segment))
 }
 
-func calcCentroid(segment []img.Pixel) img.Pixel {
-	r, g, b := 0, 0, 0
-	for _, pixel := range segment {
-		r += int(pixel.R)
-		g += int(pixel.G)
-		b += int(pixel.B)
-	}
-	numPixels := len(segment)
-	centroid := img.Pixel{
-		R: uint8(r / numPixels),
-		G: uint8(g / numPixels),
-		B: uint8(b / numPixels),
-		A: segment[0].A}
+//func calcCentroid(segment []img.Pixel) img.Pixel {
+//	r, g, b := 0, 0, 0
+//	for _, pixel := range segment {
+//		r += int(pixel.R)
+//		g += int(pixel.G)
+//		b += int(pixel.B)
+//	}
+//	numPixels := len(segment)
+//	centroid := img.Pixel{
+//		R: uint8(r / numPixels),
+//		G: uint8(g / numPixels),
+//		B: uint8(b / numPixels),
+//		A: segment[0].A}
+//
+//	return img.Pixel{
+//		R: centroid.R,
+//		G: centroid.G,
+//		B: centroid.B,
+//		A: segment[0].A}
+//}
 
-	return img.Pixel{
-		R: centroid.R,
-		G: centroid.G,
-		B: centroid.B,
-		A: segment[0].A}
-}
-
-func coordinatesToPixels(segment []img.Coordinate) []img.Pixel {
-	var pixels []img.Pixel
-	for i := range segment {
-		x, y := segment[i].X, segment[i].Y
-		pixel := img.Pixel{
-			R: img.MyImage.Pixels[x][y].R,
-			G: img.MyImage.Pixels[x][y].G,
-			B: img.MyImage.Pixels[x][y].B,
-			A: img.MyImage.Pixels[x][y].A,
-		}
-		pixels = append(pixels, pixel)
-	}
-	return pixels
-
-}
+//func coordinatesToPixels(segment []img.Coordinate) []img.Pixel {
+//	var pixels []img.Pixel
+//	for i := range segment {
+//		x, y := segment[i].X, segment[i].Y
+//		pixel := img.Pixel{
+//			R: img.MyImage.Pixels[x][y].R,
+//			G: img.MyImage.Pixels[x][y].G,
+//			B: img.MyImage.Pixels[x][y].B,
+//			A: img.MyImage.Pixels[x][y].A,
+//		}
+//		pixels = append(pixels, pixel)
+//	}
+//	return pixels
+//}

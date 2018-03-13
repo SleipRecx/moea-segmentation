@@ -43,3 +43,8 @@ func WhichDirection(c1, c2 Coordinate) Direction {
 	return None
 }
 
+func (c Coordinate) GetCardinalNeighbour() []Coordinate {
+	result := make([]Coordinate, 0)
+	return result
+}
+

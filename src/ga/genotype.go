@@ -6,23 +6,34 @@ import (
 	"../img"
 	"math"
 	"sort"
+	//"math/rand"
 )
 
 type Graph = graph.Graph
 type Edge = graph.Edge
 type Vertex = graph.Vertex
 
-type Chromosome struct {
-	genes []img.Direction
+type Genotype struct {
+	Genes [][]img.Direction
+	GenesToSegmentMap map[img.Coordinate]int
+	SegmentMatrix [][]int
 }
 
-func NewChromosome(k int) Chromosome {
+//func (g *Genotype) Mutate() {
+//	size := len(g.genes) / 4
+//	toMutate := rand.Perm(len(g.genes))[:size]
+//	for index := range toMutate {
+//		g.genes[index] = img.DirectionFactory(rand.Intn(4))
+//	}
+//}
+
+func NewGenotype(k int) Genotype {
 	g := img.MyImageGraph
 	disjointMap := make(map[Vertex]*ds.DisjointSet)
 	segMap := make(map[*ds.DisjointSet][]Vertex)
 	maxInternal := make(map[*ds.DisjointSet]float64)
 	sizeMap := make(map[*ds.DisjointSet]int)
-	genes := make([]img.Direction, 0)
+	genes := make([][]img.Direction, img.ImageWidth)
 	msf := make([]Edge, 0)
 
 	sort.Slice(g.Edges, func(i, j int) bool {
@@ -33,7 +44,12 @@ func NewChromosome(k int) Chromosome {
 		element := ds.MakeSet(vertex)
 		sizeMap[element] = 1
 		disjointMap[vertex] = element
-		genes = append(genes, img.None)
+	}
+
+	for x := 0; x < img.ImageWidth; x++ {
+		for y := 0; y < img.ImageHeight; y++ {
+			genes[x][y] = img.None
+		}
 	}
 
 	for _, edge := range g.Edges {
@@ -65,7 +81,14 @@ func NewChromosome(k int) Chromosome {
 		adjacentMap[from] = append(adjacentMap[from], to)
 		adjacentMap[to] = append(adjacentMap[to], from)
 	}
-	for _, segment := range segments {
+	segmentMatrix := make([][]int, img.ImageWidth)
+	coordinateToSegmentMap := make(map[img.Coordinate]int)
+	for i, segment := range segments {
+		SegmentMatrix[i] = make([]int, img.ImageHeight)
+		for j := range segments[i] {
+			SegmentMatrix[i][j] = i
+			coordinateToSegmentMap[segments[i][j]] = i
+		}
 		queue := []img.Coordinate{segment[0]}
 		visitedOrderMap := make(map[img.Coordinate]bool)
 		for len(queue) > 0 {
@@ -87,17 +110,15 @@ func NewChromosome(k int) Chromosome {
 		directionMap[parent] = img.WhichDirection(parent, child)
 	}
 
-	genes = make([]img.Direction, 0)
-	myCords := make([]img.Coordinate, 0)
 
 	for x := 0; x < img.ImageWidth; x++ {
+		genes[x] = make([]img.Direction, img.ImageHeight)
 		for y := 0; y < img.ImageHeight; y++ {
 			cord := img.Coordinate{X: x, Y: y}
-			genes = append(genes, directionMap[cord])
-			myCords = append(myCords, cord)
+			genes[x][y] = directionMap[cord]
 		}
 	}
-	return Chromosome{genes: genes}
+	return Genotype{genes, coordinateToSegmentMap, segmentMatrix}
 }
 
 func extractMapValues(hashMap map[*ds.DisjointSet][]Vertex) [][]img.Coordinate {

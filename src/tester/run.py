@@ -71,40 +71,40 @@ def readFilesFromFolder(directory, filter=None):
 
 
 def comparePics(studentPic, optimalSegmentPic):
-    # for each pixel in studentPic, compare to corresponding pixel in optimalSegmentPic
-    global colorValueSlackRange
-    global checkEightSurroundingPixels
-    global pixelRangeCheck
-    width, height = studentPic.shape
-    counter = 0  # counts the number of similar pics
-    numberOfBlackPixels = 0
-    for w in range(width):
-        for h in range(height):
-            # if any pixel nearby or at the same position is within the range, it counts as correct
-            color1 = studentPic[w][h]
-            color2 = optimalSegmentPic[w][h]
-            if color1 < blackValueThreshold:
-                # black color
-                numberOfBlackPixels += 1
-                if (int(color1) == int(color2)):
-                    counter += 1
-                    continue
-                elif checkEightSurroundingPixels:
-                    # check surroundings
-                    correctFound = False
-                    for w2 in range(w - pixelRangeCheck, w + pixelRangeCheck):
-                        if (correctFound):
-                            break
-                        for h2 in range(h - pixelRangeCheck, h + pixelRangeCheck):
-                            if (w2 >= 0 and h2 >= 0 and w2 < width and h2 < height):
+	# for each pixel in studentPic, compare to corresponding pixel in optimalSegmentPic
+	global colorValueSlackRange
+	global checkEightSurroundingPixels
+	global pixelRangeCheck
+	width, height= studentPic.shape
+	counter = 0 #counts the number of similar pics
+	numberOfBlackPixels = 0
+	for w in range(width):
+		for h in range(height):
+			#if any pixel nearby or at the same position is within the range, it counts as correct
+			color1 = studentPic[w][h]
+			color2 = optimalSegmentPic[w][h]
+			if color1 < blackValueThreshold:
+				#black color
+				numberOfBlackPixels +=1
+				if(color1 - colorValueSlackRange< color2  and color2 < colorValueSlackRange + color1):
+					counter +=1
+					continue
+				elif checkEightSurroundingPixels:
+					#check surroundings
+					correctFound = False
+					for w2 in range(w-pixelRangeCheck, w + pixelRangeCheck+1):
+						if(correctFound):
+							break
+						for h2 in range(h - pixelRangeCheck, h + pixelRangeCheck+1):
+							if(w2 >=0 and h2 >= 0 and w2 < width and h2 < height):
 
-                                color2 = optimalSegmentPic[w2][h2]
-                                if (color1 - colorValueSlackRange < color2 and color2 < colorValueSlackRange + color1):
-                                    correctFound = True
-                                    counter += 1
-                                    break
+								color2 = optimalSegmentPic[w2][h2]
+								if( color1 - colorValueSlackRange< color2  and color2 < colorValueSlackRange + color1):
+									correctFound = True
+									counter +=1
+									break
 
-    return counter / max(numberOfBlackPixels, 1)
+	return float(counter)/float(max(numberOfBlackPixels,1))
 
 
 if __name__ == '__main__':

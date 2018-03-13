@@ -3,13 +3,13 @@ package img
 import (
 	"../graph"
 	"fmt"
-	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"image/jpeg"
 	"image/png"
 	"io"
 	"os"
+	"github.com/disintegration/imaging"
 )
 
 type Image struct {
@@ -130,11 +130,9 @@ func ReconstructImage(segments [][]Coordinate) Image {
 	return MyImage
 }
 
-func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap map[Coordinate]int, filename string) {
-	width := len(myImage.Pixels)
-	height := len(myImage.Pixels[0])
-	newImageBlackAndWhite := image.NewRGBA(image.Rect(0, 0, width, height))
-	newImageGreen := image.NewRGBA(image.Rect(0, 0, width, height))
+func SaveEdgeDetectionImage(segments [][]Coordinate, segmentMap map[Coordinate]int, filename string) {
+	newImageBlackAndWhite := image.NewRGBA(image.Rect(0, 0, ImageWidth, ImageHeight))
+	newImageGreen := image.NewRGBA(image.Rect(0, 0, ImageWidth, ImageHeight))
 	for i := range segments {
 		for _, cord := range segments[i] {
 			x, y := cord.X, cord.Y
@@ -145,8 +143,8 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap m
 			neighbours = append(neighbours, right, down)
 
 			for _, neighbour := range neighbours {
-				if inImage(neighbour, myImage) {
-					i := myImage.Pixels[x][y]
+				if inImage(neighbour, MyImage) {
+					i := MyImage.Pixels[x][y]
 					r, g, b, a := i.R, i.G, i.B, i.A
 					newImageBlackAndWhite.Set(x, y, color.RGBA{255, 255, 255, 255})
 					newImageGreen.Set(x, y, color.RGBA{r, g, b, a})
@@ -163,18 +161,9 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, myImage Image, segmentMap m
 	defer fBlack.Close()
 	png.Encode(fBlack, newImageBlackAndWhite)
 
-	fGreen, _ := os.OpenFile("output/edge/green(type1)/" + filename + ".png", os.O_WRONLY|os.O_CREATE, 0600)
+	fGreen, _ := os.OpenFile("output/green/" + filename + ".png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer fGreen.Close()
 	png.Encode(fGreen, newImageGreen)
-}
-
-func coordinateInSegment(segment []Coordinate, coordinate Coordinate) bool {
-	for _, item := range segment {
-		if item == coordinate {
-			return true
-		}
-	}
-	return false
 }
 
 func inImage(cord Coordinate, myImage Image) bool {
