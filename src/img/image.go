@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"github.com/disintegration/imaging"
+	"errors"
 )
 
 type Image struct {
@@ -166,8 +167,50 @@ func SaveEdgeDetectionImage(segments [][]Coordinate, segmentMap map[Coordinate]i
 	png.Encode(fGreen, newImageGreen)
 }
 
-func inImage(cord Coordinate, myImage Image) bool {
-	if cord.X < len(myImage.Pixels) && cord.Y < len(myImage.Pixels[0]) {
+func GetTwoNeighbors(cord Coordinate) (Coordinate, error, Coordinate, error) {
+	x, y := cord.X, cord.Y
+	var rightError error = nil
+	var downError error = nil
+
+	right, down := Coordinate{x + 1, y}, Coordinate{x, y - 1}
+	if right.X >= ImageWidth {
+		rightError = errors.New("Right out of bounds")
+	}
+
+	if down.Y >= ImageHeight {
+		downError = errors.New("Down out of bounds")
+	}
+
+	return right, rightError, down, downError
+}
+
+func GetFourNeighbors(cord Coordinate) []Coordinate {
+	x, y := cord.X, cord.Y
+
+	neighbors := make([]Coordinate, 0)
+
+	right := Coordinate{X: x + 1, Y: y}
+	left := Coordinate{X: x - 1, Y: y}
+	up := Coordinate{X: x, Y: y + 1}
+	down := Coordinate{X: x, Y: y - 1}
+
+	if right.inImage() {
+		neighbors = append(neighbors, right)
+	}
+	if left.inImage() {
+		neighbors = append(neighbors, left)
+	}
+	if down.inImage() {
+		neighbors = append(neighbors, down)
+	}
+	if up.inImage() {
+		neighbors = append(neighbors, up)
+	}
+	return neighbors
+}
+
+func (cord Coordinate) inImage() bool {
+	if cord.X >= 0 && cord.X < ImageWidth && cord.Y >= 0 && cord.Y < ImageHeight {
 		return true
 	}
 	return false

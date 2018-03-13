@@ -1,5 +1,6 @@
 package img
 
+import "./"
 
 type Coordinate struct {
 	X, Y int
@@ -26,6 +27,7 @@ func CordFromDirection(cord Coordinate, direction Direction) Coordinate {
 	return newCord
 }
 
+
 func WhichDirection(c1, c2 Coordinate) Direction {
 	dx, dy := c2.X-c1.X, c2.Y-c1.Y
 	if dx >= 1 {
@@ -43,8 +45,8 @@ func WhichDirection(c1, c2 Coordinate) Direction {
 	return None
 }
 
-func (c Coordinate) GetCardinalNeighbour() []Coordinate {
-	result := make([]Coordinate, 0)
-	return result
-}
+//func (c Coordinate) GetCardinalNeighbour() []Coordinate {
+//	result := make([]Coordinate, 0)
+//	return result
+//}
 
